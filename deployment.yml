@@ -1,21 +1,21 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: doppler
+  namespace: default
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
-      name: doppler 
+      name: doppler
   template:
     metadata:
       labels:
         name: doppler
     spec:
       containers:
-      - name: doppler 
+      - name: doppler
         image: edrodefeld/doppler
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
-          - containerPort: 1323 
+          - containerPort: 1323
