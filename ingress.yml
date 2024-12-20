@@ -3,8 +3,10 @@ kind: Ingress
 metadata:
   name: doppler-ingress
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
 spec:
+  ingressClassName: traefik
   rules:
     - host: pinwheel.fan
       http:
@@ -13,6 +15,10 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: doppler
+                name: doppler-service
                 port:
                   number: 80
+  tls:
+    - secretName: pinwheel-tls
+      hosts:
+        - pinwheel.fan
