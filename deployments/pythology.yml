@@ -19,9 +19,31 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 8000
+        env:
+          - name: AUGUR_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_SECRET_KEY
+          - name: AUGUR_ALLOWED_HOSTS
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DB_USER
+          - name: AUGUR_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DB_PASSWORD
+                key: AUGUR_DB_USER
+          - name: AUGUR_DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DB_USER
       - name: dreamflow
         image: edrodefeld/dreamflow
-        imagePullPolicy: Always
+        imagePullPolicy: Never
         ports:
           - containerPort: 8080
       - name: atlas 
@@ -29,4 +51,14 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 5432
-
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: atlas-env-secrets
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: atlas-env-secrets
+                key: POSTGRES_PASSWORD
