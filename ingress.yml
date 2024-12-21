@@ -1,7 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: doppler-ingress
+  name: galaxy-ingress
+  namespace: galaxy
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
@@ -18,7 +19,40 @@ spec:
                 name: doppler-service
                 port:
                   number: 80
+    - host: augur.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pythology-augur-service
+                port:
+                  number: 8000
+    - host: dreamflow.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pythology-dreamflow-service
+                port:
+                  number: 8080
+    - host: atlas.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pythology-atlas-service
+                port:
+                  number: 5432
   tls:
     - secretName: pinwheel-tls
       hosts:
         - pinwheel.fan
+        - augur.pinwheel.fan
+        - dreamflow.pinwheel.fan
+        - atlas.pinwheel.fan

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: doppler
-  namespace: default
+  namespace: galaxy
 spec:
   replicas: 1
   selector:

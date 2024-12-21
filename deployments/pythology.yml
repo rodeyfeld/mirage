@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pythology 
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: pythology
+  template:
+    metadata:
+      labels:
+        name: pythology
+    spec:
+      containers:
+      - name: augur 
+        image: edrodefeld/augur
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8000
+      - name: dreamflow
+        image: edrodefeld/dreamflow
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+      - name: atlas 
+        image: edrodefeld/atlas
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 5432
+
