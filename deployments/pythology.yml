@@ -29,13 +29,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: augur-env-secrets
-                key: AUGUR_DB_USER
+                key: AUGUR_ALLOWED_HOSTS
           - name: AUGUR_DB_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: augur-env-secrets
                 key: AUGUR_DB_PASSWORD
-                key: AUGUR_DB_USER
           - name: AUGUR_DB_USER
             valueFrom:
               secretKeyRef:
