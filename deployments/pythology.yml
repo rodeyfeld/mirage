@@ -41,6 +41,11 @@ spec:
               secretKeyRef:
                 name: augur-env-secrets
                 key: AUGUR_DB_USER
+          - name: AUGUR_DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DB_HOST
       - name: dreamflow
         image: edrodefeld/dreamflow
         imagePullPolicy: Never
