@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dreamflow
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dreamflow
+  template:
+    metadata:
+      labels:
+        name: dreamflow
+    spec:
+      containers:
+      - name: dreamflow
+        image: edrodefeld/dreamflow
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+

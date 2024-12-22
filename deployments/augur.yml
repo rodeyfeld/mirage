@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pythology 
+  name: augur
   namespace: galaxy
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: pythology
+      name: augur
   template:
     metadata:
       labels:
-        name: pythology
+        name: augur
     spec:
       containers:
       - name: augur 
@@ -45,32 +45,4 @@ spec:
               secretKeyRef:
                 name: augur-env-secrets
                 key: AUGUR_DB_HOST
-      - name: dreamflow
-        image: edrodefeld/dreamflow
-        imagePullPolicy: Never
-        ports:
-          - containerPort: 8080
-      - name: atlas 
-        image: edrodefeld/atlas
-        imagePullPolicy: Always
-        ports:
-          - containerPort: 5432
-        volumeMounts:
-          - mountPath: /var/lib/postgresql/data
-            name: atlas-data
-        env:
-          - name: POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: atlas-env-secrets
-                key: POSTGRES_USER
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: atlas-env-secrets
-                key: POSTGRES_PASSWORD
-      volumes:
-        - name: atlas-data
-          persistentVolumeClaim:
-            claimName: atlas-volume-claim
 

@@ -26,7 +26,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: pythology-augur-service
+                name: augur-service
                 port:
                   number: 8000
     - host: dreamflow.pinwheel.fan
@@ -36,7 +36,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: pythology-dreamflow-service
+                name: dreamflow-service
                 port:
                   number: 8080
   tls:
