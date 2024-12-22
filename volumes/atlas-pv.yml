@@ -4,8 +4,8 @@ metadata:
   name: atlas-volume
   namespace: galaxy
   labels:
+    name: atlas-volume
     type: local
-    app: atlas
 spec:
   storageClassName: manual
   capacity:

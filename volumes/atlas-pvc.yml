@@ -4,7 +4,7 @@ metadata:
   name: atlas-volume-claim
   namespace: galaxy
   labels:
-    app: atlas
+    name: atlas-volume-claim
 spec:
   storageClassName: manual
   accessModes:
