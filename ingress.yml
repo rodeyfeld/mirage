@@ -39,20 +39,9 @@ spec:
                 name: pythology-dreamflow-service
                 port:
                   number: 8080
-    - host: atlas.pinwheel.fan
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: pythology-atlas-service
-                port:
-                  number: 5432
   tls:
     - secretName: pinwheel-tls
       hosts:
         - pinwheel.fan
         - augur.pinwheel.fan
         - dreamflow.pinwheel.fan
-        - atlas.pinwheel.fan
