@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dreamflow-worker
+  namespace: galaxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: dreamflow-worker
+  template:
+    metadata:
+      labels:
+        name: dreamflow-worker
+    spec:
+      containers:
+        - name: dreamflow-worker
+          image: edrodefeld/dreamflow
+          imagePullPolicy: IfNotPresent
+          args: ["celery", "worker"]
+          env:
+            - name: AIRFLOW_PROJ_DIR
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_PROJ_DIR
+            - name: AIRFLOW_HOME
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_HOME
+            - name: AIRFLOW_CONN_POSTGRES_DEFAULT
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_CONN_POSTGRES_DEFAULT
+            - name: CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_CONN_POSTGRES_DEFAULT
+            - name: SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: SQL_ALCHEMY_CONN

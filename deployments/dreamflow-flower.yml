@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dreamflow-flower
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dreamflow-flower
+  template:
+    metadata:
+      labels:
+        name: dreamflow-flower
+    spec:
+      containers:
+        - name: dreamflow-flower
+          image: edrodefeld/dreamflow
+          imagePullPolicy: IfNotPresent
+          args: ["celery", "flower"]
+          ports:
+            - containerPort: 5555
+          env:
+            - name: AIRFLOW_PROJ_DIR
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_PROJ_DIR
+            - name: AIRFLOW_HOME
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_HOME
+            - name: CELERY_BROKER_URL
+              value: redis://dreamflow-redis:6379/0
+

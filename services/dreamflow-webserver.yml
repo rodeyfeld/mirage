@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: dreamflow-service
+  name: dreamflow-webserver-service
   namespace: galaxy
 spec:
   selector:
-    name: dreamflow 
+    name: dreamflow-webserver
   ports:
     - protocol: TCP
       port: 8080

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dreamflow-redis
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dreamflow-redis
+  template:
+    metadata:
+      labels:
+        name: dreamflow-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
+

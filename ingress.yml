@@ -38,12 +38,23 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: dreamflow-service
+                name: dreamflow-web-service
                 port:
                   number: 8080
+    - host: flower.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dreamflow-flower-service
+                port:
+                  number: 5555
   tls:
     - secretName: pinwheel-tls
       hosts:
         - pinwheel.fan
         - augur.pinwheel.fan
         - dreamflow.pinwheel.fan
+        - flower.pinwheel.fan

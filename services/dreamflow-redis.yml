@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dreamflow-redis-service
+  namespace: galaxy
+spec:
+  selector:
+    name: dreamflow-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
