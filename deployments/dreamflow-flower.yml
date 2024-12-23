@@ -32,5 +32,5 @@ spec:
                   name: dreamflow-env-secrets
                   key: AIRFLOW_HOME
             - name: AIRFLOW__CELERY__BROKER_URL
-              value: dreamflow-redis-service.galaxy.svc.cluster.local
+              value: redis://dreamflow-redis-service.galaxy.svc.cluster.local
 

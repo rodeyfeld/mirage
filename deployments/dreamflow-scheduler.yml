@@ -20,7 +20,7 @@ spec:
           args: ["scheduler"]
           env:
             - name: AIRFLOW__CELERY__BROKER_URL
-              value: dreamflow-redis-service.galaxy.svc.cluster.local
+              value: redis://dreamflow-redis-service.galaxy.svc.cluster.local
             - name: AIRFLOW_PROJ_DIR
               valueFrom:
                 secretKeyRef:
