@@ -45,4 +45,8 @@ spec:
               secretKeyRef:
                 name: augur-env-secrets
                 key: AUGUR_DB_HOST
-
+          - name: AUGUR_DREAMFLOW_HOST
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DREAMFLOW_HOST
