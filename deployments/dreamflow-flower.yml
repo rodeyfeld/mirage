@@ -33,4 +33,13 @@ spec:
                   key: AIRFLOW_HOME
             - name: AIRFLOW__CELERY__BROKER_URL
               value: redis://dreamflow-redis-service.galaxy.svc.cluster.local
-
+            - name: AIRFLOW_CONN_POSTGRES_DEFAULT
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_CONN_POSTGRES_DEFAULT
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
