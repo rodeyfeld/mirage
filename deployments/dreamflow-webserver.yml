@@ -36,4 +36,8 @@ spec:
                 secretKeyRef:
                   name: dreamflow-env-secrets
                   key: AIRFLOW_CONN_POSTGRES_DEFAULT
-
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN

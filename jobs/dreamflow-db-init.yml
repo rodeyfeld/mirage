@@ -8,14 +8,14 @@ spec:
     spec:
       containers:
         - name: dreamflow-db-init
-          image: edrodefeld/dreamflow  # Use your custom Airflow image
+          image: edrodefeld/dreamflow
           command: ["airflow", "db", "init"]
           env:
-            - name: SQL_ALCHEMY_CONN
+            - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
               valueFrom:
                 secretKeyRef:
                   name: dreamflow-env-secrets
-                  key: SQL_ALCHEMY_CONN
+                  key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
             - name: AIRFLOW_PROJ_DIR
               valueFrom:
                 secretKeyRef:
@@ -26,8 +26,8 @@ spec:
                 secretKeyRef:
                   name: dreamflow-env-secrets
                   key: AIRFLOW_HOME
-            - name: CELERY_BROKER_URL
-              value: redis://dreamflow-redis:6379/0
+            - name: AIRFLOW__CELERY__BROKER_URL
+              value: dreamflow-redis-service.galaxy.svc.cluster.local
             - name: AIRFLOW_CONN_POSTGRES_DEFAULT
               valueFrom:
                 secretKeyRef:
