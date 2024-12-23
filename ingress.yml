@@ -38,7 +38,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: dreamflow-web-service
+                name: dreamflow-webserver-service
                 port:
                   number: 8080
     - host: flower.pinwheel.fan
