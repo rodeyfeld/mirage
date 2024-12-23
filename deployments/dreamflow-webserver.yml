@@ -16,7 +16,7 @@ spec:
       containers:
         - name: dreamflow-webserver
           image: edrodefeld/dreamflow
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always 
           args: ["webserver"]
           ports:
             - containerPort: 8080
