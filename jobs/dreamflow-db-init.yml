@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dreamflow-db-init
+  namespace: galaxy
+spec:
+  template:
+    spec:
+      containers:
+        - name: dreamflow-db-init
+          image: edrodefeld/dreamflow  # Use your custom Airflow image
+          command: ["airflow", "db", "init"]
+          env:
+            - name: AIRFLOW_HOME
+              value: "/dreamflow"
+            - name: SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: SQL_ALCHEMY_CONN
+      restartPolicy: OnFailure  # Retry if it fails
+  backoffLimit: 3  # Optional: Number of retries before the job fails
