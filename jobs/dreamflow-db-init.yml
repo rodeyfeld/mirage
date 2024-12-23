@@ -11,12 +11,28 @@ spec:
           image: edrodefeld/dreamflow  # Use your custom Airflow image
           command: ["airflow", "db", "init"]
           env:
-            - name: AIRFLOW_HOME
-              value: "/dreamflow"
             - name: SQL_ALCHEMY_CONN
               valueFrom:
                 secretKeyRef:
                   name: dreamflow-env-secrets
                   key: SQL_ALCHEMY_CONN
+            - name: AIRFLOW_PROJ_DIR
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_PROJ_DIR
+            - name: AIRFLOW_HOME
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_HOME
+            - name: CELERY_BROKER_URL
+              value: redis://dreamflow-redis:6379/0
+            - name: AIRFLOW_CONN_POSTGRES_DEFAULT
+              valueFrom:
+                secretKeyRef:
+                  name: dreamflow-env-secrets
+                  key: AIRFLOW_CONN_POSTGRES_DEFAULT
+
       restartPolicy: OnFailure  # Retry if it fails
   backoffLimit: 3  # Optional: Number of retries before the job fails
