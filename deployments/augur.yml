@@ -20,6 +20,21 @@ spec:
         ports:
           - containerPort: 8000
         env:
+          - name: AUGUR_DREAMFLOW_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DREAMFLOW_PASSWORD
+          - name: AUGUR_DREAMFLOW_USER
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DREAMFLOW_USER
+          - name: AUGUR_DEBUG
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_DEBUG
           - name: AUGUR_SECRET_KEY
             valueFrom:
               secretKeyRef:
