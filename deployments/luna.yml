@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: luna
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: luna
+  template:
+    metadata:
+      labels:
+        name: luna
+    spec:
+      containers:
+        - name: luna
+          image: edrodefeld/luna
+          imagePullPolicy: Always 
+          ports:
+            - containerPort: 3000 
+          env:
+            - name: LUNA_AUGUR_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: luna-env-secrets
+                  key: LUNA_AUGUR_HOST
+
