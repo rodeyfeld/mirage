@@ -20,6 +20,11 @@ spec:
         ports:
           - containerPort: 8000
         env:
+          - name: AUGUR_CORS_ALLOWED_HOSTS
+            valueFrom:
+              secretKeyRef:
+                name: augur-env-secrets
+                key: AUGUR_CORS_ALLOWED_HOSTS
           - name: AUGUR_DREAMFLOW_PASSWORD
             valueFrom:
               secretKeyRef:

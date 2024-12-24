@@ -20,6 +20,12 @@ spec:
           ports:
             - containerPort: 3000 
           env:
+            - name: ORIGIN
+              value: "https://luna.pinwheel.fan"
+            - name: HOST_HEADER
+              value: "x-forwarded-host"
+            - name: PROTOCOL_HEADER
+              value: "x-forwarded-proto"
             - name: LUNA_AUGUR_HOST
               valueFrom:
                 secretKeyRef:
