@@ -24,7 +24,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: augur-env-secrets
-                key: AUGUR_CORS_ALLOWED_HOSTS
+                key: AUGUR_CORS_ALLOWED_ORIGINS
           - name: AUGUR_DREAMFLOW_PASSWORD
             valueFrom:
               secretKeyRef:
