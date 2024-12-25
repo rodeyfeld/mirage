@@ -20,7 +20,7 @@ spec:
         ports:
           - containerPort: 8000
         env:
-          - name: AUGUR_CORS_ALLOWED_HOSTS
+          - name: AUGUR_CORS_ALLOWED_ORIGINS
             valueFrom:
               secretKeyRef:
                 name: augur-env-secrets
