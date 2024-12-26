@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: oracle 
-          image: edrodefeld/dreamflow
+          image: edrodefeld/oracle
           env:
             - name: POSTGRES_DB_URL
               valueFrom:
