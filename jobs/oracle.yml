@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oracle 
+  namespace: galaxy
+spec:
+  template:
+    spec:
+      containers:
+        - name: oracle 
+          image: edrodefeld/dreamflow
+          env:
+            - name: POSTGRES_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: oracle-env-secrets
+                  key: POSTGRES_DB_URL
+      restartPolicy: OnFailure
+  backoffLimit: 3
+
