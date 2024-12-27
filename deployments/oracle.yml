@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oracle
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: oracle
+  template:
+    metadata:
+      labels:
+        name: oracle
+    spec:
+      containers:
+      - name: oracle
+        image: edrodefeld/oracle
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 7777
+        env:
+          - name: POSTGRES_DB_URL
+            valueFrom:
+              secretKeyRef:
+                name: oracle-env-secrets
+                key: POSTGRES_DB_URL
