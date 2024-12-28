@@ -19,3 +19,12 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 1323
+        volumeMounts:
+          - mountPath: /app
+            name: doppler-data
+
+      volumes:
+        - name: doppler-data
+          persistentVolumeClaim:
+            claimName: doppler-volume-claim
+
