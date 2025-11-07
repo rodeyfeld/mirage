@@ -20,8 +20,9 @@ spec:
         ports:
           - containerPort: 1323
         volumeMounts:
-          - mountPath: /app
+          - mountPath: /app/doppler.db
             name: doppler-data
+            subPath: doppler.db
 
       volumes:
         - name: doppler-data
