@@ -10,10 +10,10 @@ spec:
         - name: doppler-db-migrate
           image: edrodefeld/doppler
           command: ["goose", "-dir", "internal/db/sql/", "sqlite3", "doppler.db", "up"]
-      volumeMounts:
-        - name: doppler-data
-          mountPath: /app/doppler.db
-          subPath: doppler.db
+          volumeMounts:
+            - name: doppler-data
+              mountPath: /app/doppler.db
+              subPath: doppler.db
       volumes:
         - name: doppler-data
           persistentVolumeClaim:
