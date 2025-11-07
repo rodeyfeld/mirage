@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: doppler-db-migrate
+  namespace: galaxy
+spec:
+  template:
+    spec:
+      containers:
+        - name: doppler-db-migrate
+          image: edrodefeld/doppler
+          command: ["goose", "-dir", "internal/db/sql/", "sqlite3", "doppler.db", "up"]
+      volumeMounts:
+        - name: doppler-data
+          mountPath: /app/doppler.db
+          subPath: doppler.db
+      volumes:
+        - name: doppler-data
+          persistentVolumeClaim:
+            claimName: doppler-volume-claim
+      restartPolicy: OnFailure  # Retry if it fails
+  backoffLimit: 3  # Optional: Number of retries before the job fails
