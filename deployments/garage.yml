@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: garage
+  namespace: galaxy
+  labels:
+    app: garage
+spec:
+  serviceName: garage
+  replicas: 1
+  selector:
+    matchLabels:
+      app: garage
+  template:
+    metadata:
+      labels:
+        app: garage
+    spec:
+      containers:
+      - name: garage
+        image: dxflrs/garage:v0.9.3
+        ports:
+        - containerPort: 3900
+          name: s3-api
+        - containerPort: 3901
+          name: rpc
+        - containerPort: 3902
+          name: web
+        - containerPort: 3903
+          name: admin
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: meta
+          mountPath: /meta
+        - name: config
+          mountPath: /etc/garage.toml
+          subPath: garage.toml
+        env:
+        - name: RUST_LOG
+          value: "garage=info"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          tcpSocket:
+            port: 3900
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 3900
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: garage-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: garage-data-pvc
+      - name: meta
+        persistentVolumeClaim:
+          claimName: garage-meta-pvc

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: garage-data-pv
+  labels:
+    type: local
+    app: garage
+    volume: data
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/garage/data"
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
