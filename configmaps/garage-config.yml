@@ -16,7 +16,7 @@ data:
     
     rpc_bind_addr = "[::]:3901"
     rpc_public_addr = "127.0.0.1:3901"
-    rpc_secret = "change-this-secret-to-something-random-32chars"
+    # rpc_secret loaded from GARAGE_RPC_SECRET environment variable
     
     [s3_api]
     s3_region = "garage"

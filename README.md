@@ -12,3 +12,7 @@ kubectl create secret generic atlas-env-secrets \
   --from-literal=POSTGRES_PASSWORD=$ATLAS_POSTGRES_PASSWORD \
   --namespace=galaxy 
 
+kubectl create secret generic garage-secrets \
+  --from-literal=GARAGE_RPC_SECRET=$(openssl rand -hex 32) \
+  --namespace=galaxy
+
