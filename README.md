@@ -66,6 +66,14 @@ kubectl create secret generic oracle-env-secrets \
   --namespace=galaxy
 ```
 
+#### Doppler S3 Access (configure after Garage is running)
+```bash
+kubectl create secret generic doppler-s3-secrets \
+  --from-literal=S3_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID \
+  --from-literal=S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY \
+  --namespace=galaxy
+```
+
 #### Garage (S3-Compatible Storage)
 ```bash
 kubectl create secret generic garage-secrets \
@@ -83,7 +91,62 @@ Apply resources in this order:
 4. **Deployments:** `kubectl apply -f deployments/`
 5. **Jobs** (optional): `kubectl apply -f jobs/`
 
-### 4. Verify Deployment
+### 4. Initialize Garage Cluster
+
+After Garage is running, initialize the cluster (required even for single node):
+
+```bash
+# Get the node ID
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml status
+
+# Copy the Node ID from output, then assign it to a zone with capacity
+# Replace NODE_ID_HERE with the actual ID (e.g., 8d2b1bbd1e670b0b...)
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml layout assign \
+  NODE_ID_HERE -z dc1 -c 20G
+
+# Apply the layout (version 1 for first time)
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml layout apply --version 1
+
+# Verify cluster is ready
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml status
+```
+
+### 5. Configure Garage S3 for Doppler
+
+Create S3 credentials for Doppler:
+
+```bash
+# Create a key for doppler
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml key create doppler-key
+
+# Create a bucket for photos
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml bucket create doppler-photos
+
+# Grant permissions
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml bucket allow \
+  --read --write doppler-photos --key doppler-key
+
+# Get the credentials (copy the access_key_id and secret_access_key)
+kubectl exec garage-0 -n galaxy -- /garage -c /etc/garage.toml key info doppler-key
+```
+
+Update your `.env` file with the credentials, then create the secret:
+
+```bash
+source .env
+kubectl create secret generic doppler-s3-secrets \
+  --from-literal=S3_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID \
+  --from-literal=S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY \
+  --namespace=galaxy
+```
+
+Restart Doppler to pick up the new configuration:
+
+```bash
+kubectl rollout restart deployment doppler -n galaxy
+```
+
+### 6. Verify Deployment
 
 ```bash
 # Check all pods are running
