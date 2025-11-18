@@ -26,6 +26,8 @@ spec:
             value: "garage"
           - name: S3_BUCKET
             value: "doppler-photos"
+          - name: DB_PATH
+            value: "data/doppler.db"
           - name: S3_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
@@ -37,9 +39,8 @@ spec:
                 name: doppler-s3-secrets
                 key: S3_SECRET_ACCESS_KEY
         volumeMounts:
-          - mountPath: /app/doppler.db
+          - mountPath: /app/data
             name: doppler-data
-            subPath: doppler.db
 
       volumes:
         - name: doppler-data
