@@ -10,7 +10,8 @@ data:
     metadata_dir = "/meta"
     data_dir = "/data"
     
-    replication_mode = "none"
+    replication_factor = 1
+    consistency_mode = "none"
     
     compression_level = 1
     
