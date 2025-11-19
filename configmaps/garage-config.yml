@@ -11,7 +11,6 @@ data:
     data_dir = "/data"
     
     replication_factor = 1
-    consistency_mode = "none"
     
     compression_level = 1
     
