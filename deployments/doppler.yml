@@ -26,6 +26,8 @@ spec:
             value: "garage"
           - name: S3_BUCKET
             value: "doppler-photos"
+          - name: S3_USE_SSL
+            value: "false"
           - name: DB_PATH
             value: "data/doppler.db"
           - name: S3_ACCESS_KEY_ID
