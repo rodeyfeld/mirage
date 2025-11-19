@@ -21,7 +21,7 @@ spec:
           - containerPort: 1323
         env:
           - name: S3_ENDPOINT
-            value: "http://garage-s3.galaxy.svc.cluster.local:3900"
+            value: "garage-s3.galaxy.svc.cluster.local:3900"
           - name: S3_REGION
             value: "garage"
           - name: S3_BUCKET
