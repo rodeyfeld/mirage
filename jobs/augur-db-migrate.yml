@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: augur-db-migrate
+  namespace: galaxy
+spec:
+  template:
+    spec:
+      containers:
+        - name: augur-db-migrate
+          image: edrodefeld/augur
+          imagePullPolicy: Always
+          command: ["python", "manage.py", "migrate", "--noinput"]
+          env:
+            - name: AUGUR_CORS_ALLOWED_ORIGINS
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_CORS_ALLOWED_ORIGINS
+            - name: AUGUR_DREAMFLOW_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DREAMFLOW_PASSWORD
+            - name: AUGUR_DREAMFLOW_USER
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DREAMFLOW_USER
+            - name: AUGUR_DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DEBUG
+            - name: AUGUR_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_SECRET_KEY
+            - name: AUGUR_ALLOWED_HOSTS
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_ALLOWED_HOSTS
+            - name: AUGUR_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DB_PASSWORD
+            - name: AUGUR_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DB_USER
+            - name: AUGUR_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DB_HOST
+            - name: AUGUR_DREAMFLOW_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DREAMFLOW_HOST
+      restartPolicy: OnFailure
+  backoffLimit: 1
