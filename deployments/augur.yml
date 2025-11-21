@@ -14,59 +14,74 @@ spec:
         name: augur
     spec:
       containers:
-      - name: augur 
-        image: edrodefeld/augur
-        imagePullPolicy: Always
-        ports:
-          - containerPort: 8000
-        env:
-          - name: AUGUR_CORS_ALLOWED_ORIGINS
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_CORS_ALLOWED_ORIGINS
-          - name: AUGUR_DREAMFLOW_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_DREAMFLOW_PASSWORD
-          - name: AUGUR_DREAMFLOW_USER
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_DREAMFLOW_USER
-          - name: AUGUR_DEBUG
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_DEBUG
-          - name: AUGUR_SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_SECRET_KEY
-          - name: AUGUR_ALLOWED_HOSTS
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_ALLOWED_HOSTS
-          - name: AUGUR_DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_DB_PASSWORD
-          - name: AUGUR_DB_USER
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_DB_USER
-          - name: AUGUR_DB_HOST
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_DB_HOST
-          - name: AUGUR_DREAMFLOW_HOST
-            valueFrom:
-              secretKeyRef:
-                name: augur-env-secrets
-                key: AUGUR_DREAMFLOW_HOST
+        - name: augur
+          image: edrodefeld/augur
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: AUGUR_CORS_ALLOWED_ORIGINS
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_CORS_ALLOWED_ORIGINS
+            - name: AUGUR_DREAMFLOW_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DREAMFLOW_PASSWORD
+            - name: AUGUR_DREAMFLOW_USER
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DREAMFLOW_USER
+            - name: AUGUR_DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DEBUG
+            - name: AUGUR_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_SECRET_KEY
+            - name: AUGUR_ALLOWED_HOSTS
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_ALLOWED_HOSTS
+            - name: AUGUR_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DB_PASSWORD
+            - name: AUGUR_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DB_USER
+            - name: AUGUR_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DB_HOST
+            - name: AUGUR_DREAMFLOW_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_DREAMFLOW_HOST
+            - name: AUGUR_SECURE_SSL_REDIRECT
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_SECURE_SSL_REDIRECT
+            - name: AUGUR_SESSION_COOKIE_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_SESSION_COOKIE_SECURE
+            - name: AUGUR_CSRF_COOKIE_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: augur-env-secrets
+                  key: AUGUR_CSRF_COOKIE_SECURE
