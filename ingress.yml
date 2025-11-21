@@ -7,8 +7,6 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     ingress.kubernetes.io/ssl-proxy-headers: "X-Forwarded-Proto: https"
     ingress.kubernetes.io/ssl-redirect: "true"
-    # Rate limiting for Kami endpoint
-    traefik.ingress.kubernetes.io/router.middlewares: galaxy-kami-ratelimit@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
