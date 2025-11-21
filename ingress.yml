@@ -70,6 +70,16 @@ spec:
                 name: oracle-service
                 port:
                   number: 7777
+    - host: kami.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kami-service
+                port:
+                  number: 8080
   tls:
     - secretName: pinwheel-tls
       hosts:
@@ -79,3 +89,4 @@ spec:
         - dreamflow.pinwheel.fan
         - flower.pinwheel.fan
         - oracle.pinwheel.fan
+        - kami.pinwheel.fan
