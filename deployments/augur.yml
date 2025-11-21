@@ -70,3 +70,5 @@ spec:
                 secretKeyRef:
                   name: augur-env-secrets
                   key: AUGUR_DREAMFLOW_HOST
+            - name: AUGUR_SECURE_SSL_REDIRECT
+              value: "False"
