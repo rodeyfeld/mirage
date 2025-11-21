@@ -70,18 +70,3 @@ spec:
                 secretKeyRef:
                   name: augur-env-secrets
                   key: AUGUR_DREAMFLOW_HOST
-            - name: AUGUR_SECURE_SSL_REDIRECT
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_SECURE_SSL_REDIRECT
-            - name: AUGUR_SESSION_COOKIE_SECURE
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_SESSION_COOKIE_SECURE
-            - name: AUGUR_CSRF_COOKIE_SECURE
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_CSRF_COOKIE_SECURE
