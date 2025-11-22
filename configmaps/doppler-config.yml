@@ -12,3 +12,4 @@ data:
 
   # Application settings
   DB_PATH: "data/doppler.db"
+

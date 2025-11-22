@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ouroboros-agent
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ouroboros-agent
+  template:
+    metadata:
+      labels:
+        name: ouroboros-agent
+    spec:
+      containers:
+        - name: agent
+          image: woodpeckerci/woodpecker-agent:latest
+          envFrom:
+            - secretRef:
+                name: ouroboros-env-secrets
+          env:
+            - name: WOODPECKER_SERVER
+              value: "ouroboros-service:9000" # Internal GRPC address
+            - name: WOODPECKER_MAX_PROCS
+              value: "2" # Number of concurrent builds
+          volumeMounts:
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+      volumes:
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock

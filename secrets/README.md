@@ -95,3 +95,4 @@ Always restart the deployment to load new secret values:
 kubectl rollout restart deployment/<service> -n galaxy
 kubectl rollout status deployment/<service> -n galaxy
 ```
+

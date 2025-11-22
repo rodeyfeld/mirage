@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ouroboros-server
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ouroboros-server
+  template:
+    metadata:
+      labels:
+        name: ouroboros-server
+    spec:
+      containers:
+        - name: server
+          image: woodpeckerci/woodpecker-server:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: ouroboros-env-secrets
+          # Woodpecker environment variables
+          env:
+            - name: WOODPECKER_OPEN
+              value: "true" # Allow registration
+            - name: WOODPECKER_ORGS
+              value: "edrodefeld" # Limit to your orgs if needed
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10

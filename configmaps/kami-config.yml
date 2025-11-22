@@ -7,3 +7,4 @@ data:
   # Kubernetes namespace to monitor
   KAMI_NAMESPACE: "galaxy"
 
+

@@ -7,3 +7,4 @@ data:
   # Security settings
   AUGUR_SECURE_SSL_REDIRECT: "False"  # Disable for internal HTTP cluster communication
 
+
