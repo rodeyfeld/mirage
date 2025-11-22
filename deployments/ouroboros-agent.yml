@@ -23,16 +23,7 @@ spec:
             - secretRef:
                 name: ouroboros-env-secrets
           env:
-            - name: WOODPECKER_BACKEND
-              value: "docker"
             - name: WOODPECKER_SERVER
               value: "ouroboros-service:9000"
             - name: WOODPECKER_MAX_PROCS
               value: "2"
-          volumeMounts:
-            - name: docker-sock
-              mountPath: /var/run/docker.sock
-      volumes:
-        - name: docker-sock
-          hostPath:
-            path: /var/run/docker.sock
