@@ -8,4 +8,5 @@ data:
   WOODPECKER_ORGS: "edrodefeld"
   WOODPECKER_BACKEND: "docker"
   WOODPECKER_LOG_LEVEL: "info"
+  WOODPECKER_GITHUB: "true"
 
