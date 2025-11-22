@@ -1,0 +1,63 @@
+variables:
+  - &deploy_creds
+    image: bitnami/kubectl
+    environment:
+      KUBECONFIG_BASE64:
+        from_secret: kubeconfig
+
+steps:
+  apply-all:
+    <<: *deploy_creds
+    commands:
+      - echo $KUBECONFIG_BASE64 | base64 -d > /tmp/kubeconfig
+      - echo "Applying all Kubernetes manifests..."
+      # Apply ConfigMaps and Secrets first
+      - kubectl --kubeconfig=/tmp/kubeconfig apply -f configmaps/ -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig apply -f secrets/ -n galaxy || true
+      # Apply RBAC
+      - kubectl --kubeconfig=/tmp/kubeconfig apply -f rbac/ || true
+      # Apply Services
+      - kubectl --kubeconfig=/tmp/kubeconfig apply -f services/ -n galaxy || true
+      # Apply Ingress
+      - kubectl --kubeconfig=/tmp/kubeconfig apply -f ingress.yml -n galaxy || true
+      # Apply Deployments and StatefulSets
+      - kubectl --kubeconfig=/tmp/kubeconfig apply -f deployments/ -n galaxy || true
+      # Apply Jobs
+      - kubectl --kubeconfig=/tmp/kubeconfig apply -f jobs/ -n galaxy || true
+      - echo "All manifests applied!"
+    when:
+      - event: [push, manual]
+        branch: [main, master]
+
+  restart-deployments:
+    <<: *deploy_creds
+    commands:
+      - echo $KUBECONFIG_BASE64 | base64 -d > /tmp/kubeconfig
+      - echo "Restarting all deployments in order..."
+      # Core infrastructure first
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart statefulset/garage -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/atlas -n galaxy || true
+      # Backend services
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/augur -n galaxy || true
+      # Frontend
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/luna -n galaxy || true
+      # Other services
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/doppler -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/kami -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/enchiridion -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/enchiridion-postgres -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/enchiridion-redis -n galaxy || true
+      # CI/CD infrastructure
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/ouroboros-server -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/ouroboros-agent -n galaxy || true
+      # Dreamflow components
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/dreamflow-webserver -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/dreamflow-worker -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/dreamflow-flower -n galaxy || true
+      - kubectl --kubeconfig=/tmp/kubeconfig rollout restart deployment/dreamflow-redis -n galaxy || true
+      - echo "All deployments restarted!"
+    when:
+      - event: [push, manual]
+        branch: [main, master]
+        evaluate: 'CI_COMMIT_MESSAGE contains "[restart]" || CI_PIPELINE_EVENT == "manual"'
+
