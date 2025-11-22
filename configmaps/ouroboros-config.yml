@@ -5,8 +5,7 @@ metadata:
   namespace: galaxy
 data:
   WOODPECKER_OPEN: "true"
-  WOODPECKER_ORGS: "edrodefeld"
+  WOODPECKER_ORGS: "pinwheel-labs"
   WOODPECKER_BACKEND: "docker"
   WOODPECKER_LOG_LEVEL: "info"
   WOODPECKER_GITHUB: "true"
-
