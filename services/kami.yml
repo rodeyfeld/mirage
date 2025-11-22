@@ -8,6 +8,6 @@ spec:
     name: kami
   ports:
     - protocol: TCP
-      port: 8080
+      port: 8888
       targetPort: 8080
 

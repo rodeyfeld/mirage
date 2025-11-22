@@ -79,7 +79,7 @@ spec:
               service:
                 name: kami-service
                 port:
-                  number: 8080
+                  number: 8888
     - host: enchiridion.pinwheel.fan
       http:
         paths:
@@ -89,7 +89,7 @@ spec:
               service:
                 name: enchiridion-service
                 port:
-                  number: 80
+                  number: 3110
     - host: ouroboros.pinwheel.fan
       http:
         paths:
@@ -99,7 +99,7 @@ spec:
               service:
                 name: ouroboros-service
                 port:
-                  number: 8000
+                  number: 8001
   tls:
     - secretName: doppler-tls
       hosts:
