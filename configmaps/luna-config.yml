@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: luna-config
+  namespace: galaxy
+data:
+  # SvelteKit origin configuration
+  ORIGIN: "https://luna.pinwheel.fan"
+  HOST_HEADER: "x-forwarded-host"
+  PROTOCOL_HEADER: "x-forwarded-proto"
+

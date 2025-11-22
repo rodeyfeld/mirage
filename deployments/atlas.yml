@@ -22,17 +22,9 @@ spec:
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: atlas-data
-        env:
-          - name: POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: atlas-env-secrets
-                key: POSTGRES_USER
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: atlas-env-secrets
-                key: POSTGRES_PASSWORD
+        envFrom:
+          - secretRef:
+              name: atlas-env-secrets
       volumes:
         - name: atlas-data
           persistentVolumeClaim:

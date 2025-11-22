@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: augur-config
+  namespace: galaxy
+data:
+  # Security settings
+  AUGUR_SECURE_SSL_REDIRECT: "False"  # Disable for internal HTTP cluster communication
+

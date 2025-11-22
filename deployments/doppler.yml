@@ -14,38 +14,23 @@ spec:
         name: doppler
     spec:
       containers:
-      - name: doppler
-        image: edrodefeld/doppler
-        imagePullPolicy: Always
-        ports:
-          - containerPort: 1323
-        env:
-          - name: S3_ENDPOINT
-            value: "garage-s3.galaxy.svc.cluster.local:3900"
-          - name: S3_REGION
-            value: "garage"
-          - name: S3_BUCKET
-            value: "doppler-photos"
-          - name: S3_USE_SSL
-            value: "false"
-          - name: DB_PATH
-            value: "data/doppler.db"
-          - name: S3_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: doppler-s3-secrets
-                key: S3_ACCESS_KEY_ID
-          - name: S3_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: doppler-s3-secrets
-                key: S3_SECRET_ACCESS_KEY
-        volumeMounts:
-          - mountPath: /app/data
-            name: doppler-data
+        - name: doppler
+          image: edrodefeld/doppler
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 1323
+          envFrom:
+            # Load non-sensitive configuration
+            - configMapRef:
+                name: doppler-config
+            # Load secrets
+            - secretRef:
+                name: doppler-env-secrets
+          volumeMounts:
+            - mountPath: /app/data
+              name: doppler-data
 
       volumes:
         - name: doppler-data
           persistentVolumeClaim:
             claimName: doppler-volume-claim
-

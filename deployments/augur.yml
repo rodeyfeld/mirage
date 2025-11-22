@@ -19,56 +19,8 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
-          env:
-            - name: AUGUR_CORS_ALLOWED_ORIGINS
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_CORS_ALLOWED_ORIGINS
-            - name: AUGUR_DREAMFLOW_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_DREAMFLOW_PASSWORD
-            - name: AUGUR_DREAMFLOW_USER
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_DREAMFLOW_USER
-            - name: AUGUR_DEBUG
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_DEBUG
-            - name: AUGUR_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_SECRET_KEY
-            - name: AUGUR_ALLOWED_HOSTS
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_ALLOWED_HOSTS
-            - name: AUGUR_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_DB_PASSWORD
-            - name: AUGUR_DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_DB_USER
-            - name: AUGUR_DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_DB_HOST
-            - name: AUGUR_DREAMFLOW_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: augur-env-secrets
-                  key: AUGUR_DREAMFLOW_HOST
-            - name: AUGUR_SECURE_SSL_REDIRECT
-              value: "False"
+          envFrom:
+            - configMapRef:
+                name: augur-config
+            - secretRef:
+                name: augur-env-secrets

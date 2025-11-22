@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enchiridion-postgres
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: enchiridion-postgres
+  template:
+    metadata:
+      labels:
+        name: enchiridion-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14-alpine
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: enchiridion-env-secrets
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: enchiridion-postgres-pvc

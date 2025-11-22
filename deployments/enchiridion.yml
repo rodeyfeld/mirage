@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enchiridion
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: enchiridion
+  template:
+    metadata:
+      labels:
+        name: enchiridion
+    spec:
+      containers:
+        - name: enchiridion
+          image: edrodefeld/enchiridion:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: enchiridion-env-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: doppler-config
+  namespace: galaxy
+data:
+  # S3/Garage configuration
+  S3_ENDPOINT: "garage-s3.galaxy.svc.cluster.local:3900"
+  S3_REGION: "garage"
+  S3_BUCKET: "doppler-photos"
+  S3_USE_SSL: "false"
+
+  # Application settings
+  DB_PATH: "data/doppler.db"
