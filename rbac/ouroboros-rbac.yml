@@ -12,9 +12,19 @@ metadata:
 rules:
   # Allow managing all resources in galaxy namespace (for deployment restarts)
   - apiGroups: ["", "apps", "batch", "extensions"]
-    resources: ["deployments", "pods", "pods/log", "services", "configmaps", "secrets", "jobs", "persistentvolumeclaims"]
+    resources:
+      [
+        "deployments",
+        "pods",
+        "pods/log",
+        "services",
+        "configmaps",
+        "secrets",
+        "jobs",
+        "persistentvolumeclaims",
+      ]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  
+
   # Allow Woodpecker to spawn agent pods in woodpecker namespace (if using k8s backend)
   # or in the agent's own namespace
   - apiGroups: [""]
@@ -37,5 +47,3 @@ roleRef:
   kind: ClusterRole
   name: ouroboros-deployer-role
   apiGroup: rbac.authorization.k8s.io
-
-
