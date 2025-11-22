@@ -80,6 +80,16 @@ spec:
                 name: kami-service
                 port:
                   number: 8080
+    - host: enchiridion.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: enchiridion-service
+                port:
+                  number: 80
   tls:
     - secretName: pinwheel-tls
       hosts:
@@ -90,3 +100,4 @@ spec:
         - flower.pinwheel.fan
         - oracle.pinwheel.fan
         - kami.pinwheel.fan
+        - enchiridion.pinwheel.fan
