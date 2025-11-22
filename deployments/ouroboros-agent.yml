@@ -23,6 +23,8 @@ spec:
             - secretRef:
                 name: ouroboros-env-secrets
           env:
+            - name: WOODPECKER_BACKEND
+              value: "docker"
             - name: WOODPECKER_SERVER
               value: "ouroboros-service:9000"
             - name: WOODPECKER_MAX_PROCS
