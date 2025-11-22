@@ -19,7 +19,7 @@ steps:
       - echo "All manifests applied!"
     when:
       - event: [push, manual]
-        branch: [main, master]
+        branch: main
 
   restart-deployments:
     image: bitnami/kubectl
@@ -49,5 +49,5 @@ steps:
       - echo "All deployments restarted!"
     when:
       - event: [push, manual]
-        branch: [main, master]
+        branch: main
         evaluate: 'CI_COMMIT_MESSAGE contains "[restart]" || CI_PIPELINE_EVENT == "manual"'
