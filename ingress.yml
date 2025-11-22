@@ -101,14 +101,30 @@ spec:
                 port:
                   number: 80
   tls:
-    - secretName: pinwheel-tls
+    - secretName: doppler-tls
       hosts:
         - pinwheel.fan
+    - secretName: luna-tls
+      hosts:
         - luna.pinwheel.fan
+    - secretName: augur-tls
+      hosts:
         - augur.pinwheel.fan
+    - secretName: dreamflow-tls
+      hosts:
         - dreamflow.pinwheel.fan
+    - secretName: flower-tls
+      hosts:
         - flower.pinwheel.fan
+    - secretName: oracle-tls
+      hosts:
         - oracle.pinwheel.fan
+    - secretName: kami-tls
+      hosts:
         - kami.pinwheel.fan
+    - secretName: enchiridion-tls
+      hosts:
         - enchiridion.pinwheel.fan
+    - secretName: ouroboros-tls
+      hosts:
         - ouroboros.pinwheel.fan
