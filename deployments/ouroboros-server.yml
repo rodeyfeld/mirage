@@ -21,15 +21,21 @@ spec:
           envFrom:
             - secretRef:
                 name: ouroboros-env-secrets
-          # Woodpecker environment variables
           env:
             - name: WOODPECKER_OPEN
-              value: "true" # Allow registration
+              value: "true"
             - name: WOODPECKER_ORGS
-              value: "edrodefeld" # Limit to your orgs if needed
+              value: "edrodefeld"
+          volumeMounts:
+            - name: server-data
+              mountPath: /var/lib/woodpecker
           livenessProbe:
             httpGet:
               path: /healthz
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 10
+      volumes:
+        - name: server-data
+          persistentVolumeClaim:
+            claimName: ouroboros-server-pvc
