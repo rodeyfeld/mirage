@@ -60,16 +60,6 @@ spec:
                 name: luna-service
                 port:
                   number: 3000
-    - host: oracle.pinwheel.fan
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: oracle-service
-                port:
-                  number: 7777
     - host: kami.pinwheel.fan
       http:
         paths:
@@ -116,9 +106,6 @@ spec:
     - secretName: flower-tls
       hosts:
         - flower.pinwheel.fan
-    - secretName: oracle-tls
-      hosts:
-        - oracle.pinwheel.fan
     - secretName: kami-tls
       hosts:
         - kami.pinwheel.fan
