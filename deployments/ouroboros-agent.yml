@@ -13,17 +13,20 @@ spec:
       labels:
         name: ouroboros-agent
     spec:
+      serviceAccountName: ouroboros-deployer
       containers:
         - name: agent
           image: woodpeckerci/woodpecker-agent:latest
           envFrom:
+            - configMapRef:
+                name: ouroboros-config
             - secretRef:
                 name: ouroboros-env-secrets
           env:
             - name: WOODPECKER_SERVER
-              value: "ouroboros-service:9000" # Internal GRPC address
+              value: "ouroboros-service:9000"
             - name: WOODPECKER_MAX_PROCS
-              value: "2" # Number of concurrent builds
+              value: "2"
           volumeMounts:
             - name: docker-sock
               mountPath: /var/run/docker.sock

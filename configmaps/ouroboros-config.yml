@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ouroboros-config
+  namespace: galaxy
+data:
+  WOODPECKER_OPEN: "true"
+  WOODPECKER_ORGS: "edrodefeld"
+  WOODPECKER_BACKEND: "docker"
+  WOODPECKER_LOG_LEVEL: "info"
+
