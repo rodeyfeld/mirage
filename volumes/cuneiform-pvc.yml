@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: enchiridion-redis-pvc
+  name: cuneiform-pvc
   namespace: galaxy
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
-
+      storage: 10Gi
