@@ -29,6 +29,18 @@ spec:
           volumeMounts:
             - mountPath: /app/data
               name: doppler-data
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 1323
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 1323
+            initialDelaySeconds: 5
+            periodSeconds: 5
 
       volumes:
         - name: doppler-data
