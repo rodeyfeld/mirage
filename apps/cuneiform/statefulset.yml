@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: cuneiform
   namespace: galaxy
 spec:
+  serviceName: cuneiform-service
   replicas: 1
   selector:
     matchLabels:
@@ -53,3 +54,4 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: cuneiform-pvc
+

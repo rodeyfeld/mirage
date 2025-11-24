@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: atlas
   namespace: galaxy
 spec:
+  serviceName: atlas-service
   replicas: 1
   selector:
     matchLabels:
