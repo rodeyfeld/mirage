@@ -15,6 +15,7 @@ rules:
     resources:
       [
         "deployments",
+        "statefulsets",
         "pods",
         "pods/log",
         "services",
