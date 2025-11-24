@@ -61,8 +61,8 @@ steps:
     image: bitnami/kubectl
     commands:
       - echo "Restarting all resources..."
-      - kubectl rollout restart statefulset --all -n galaxy || true
-      - kubectl rollout restart deployment --all -n galaxy || true
+      - kubectl rollout restart statefulset -n galaxy
+      - kubectl rollout restart deployment -n galaxy
       - echo "✅ All resources restarted!"
     when:
       - event: [push, manual]
