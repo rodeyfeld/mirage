@@ -34,6 +34,9 @@ subjects:
   - kind: ServiceAccount
     name: ouroboros-deployer
     namespace: galaxy
+  - kind: ServiceAccount
+    name: default
+    namespace: galaxy
 roleRef:
   kind: ClusterRole
   name: ouroboros-deployer-role
