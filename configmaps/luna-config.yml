@@ -8,4 +8,6 @@ data:
   ORIGIN: "https://luna.pinwheel.fan"
   HOST_HEADER: "x-forwarded-host"
   PROTOCOL_HEADER: "x-forwarded-proto"
+  
+  # Backend API host
   LUNA_AUGUR_HOST: "http://augur-service.galaxy.svc.cluster.local:8000"

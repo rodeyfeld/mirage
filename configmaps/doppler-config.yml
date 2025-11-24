@@ -9,7 +9,6 @@ data:
   S3_REGION: "garage"
   S3_BUCKET: "doppler-photos"
   S3_USE_SSL: "false"
-
+  
   # Application settings
   DB_PATH: "data/doppler.db"
-

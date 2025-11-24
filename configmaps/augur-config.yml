@@ -4,7 +4,23 @@ metadata:
   name: augur-config
   namespace: galaxy
 data:
+  # Django settings
+  AUGUR_DEBUG: "False"
+  AUGUR_ALLOWED_HOSTS: "augur.pinwheel.fan,augur-service,augur-service.galaxy.svc.cluster.local"
+  AUGUR_CORS_ALLOWED_ORIGINS: "https://luna.pinwheel.fan"
+  AUGUR_CSRF_TRUSTED_ORIGINS: "https://luna.pinwheel.fan,https://augur.pinwheel.fan"
+  
   # Security settings
   AUGUR_SECURE_SSL_REDIRECT: "False"  # Disable for internal HTTP cluster communication
-
-
+  AUGUR_SESSION_COOKIE_SECURE: "True"
+  AUGUR_CSRF_COOKIE_SECURE: "True"
+  
+  # Database connection
+  AUGUR_DB_HOST: "atlas-service.galaxy.svc.cluster.local"
+  AUGUR_DB_PORT: "5432"
+  AUGUR_DB_NAME: "augur"
+  AUGUR_DB_USER: "augur"
+  
+  # Dreamflow/Airflow integration
+  AUGUR_DREAMFLOW_HOST: "http://dreamflow-webserver-service.galaxy.svc.cluster.local:8080"
+  AUGUR_DREAMFLOW_USER: "airflow"
