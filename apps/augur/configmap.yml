@@ -19,7 +19,7 @@ data:
   AUGUR_DB_HOST: "atlas-service.galaxy.svc.cluster.local"
   AUGUR_DB_PORT: "5432"
   AUGUR_DB_NAME: "augur"
-  AUGUR_DB_USER: "augur"
+  AUGUR_DB_USER: "postgres"
   
   # Dreamflow/Airflow integration
   AUGUR_DREAMFLOW_HOST: "http://dreamflow-webserver-service.galaxy.svc.cluster.local:8080"
