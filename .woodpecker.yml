@@ -1,13 +1,55 @@
 steps:
+  sync-secrets:
+    image: bitnami/kubectl
+    environment:
+      BAO_ADDR: https://cuneiform.pinwheel.fan
+      BAO_TOKEN:
+        from_secret: cuneiform_token
+    commands:
+      - |
+        # Install bao CLI
+        wget -q https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_linux_amd64.tar.gz
+        tar -xzf bao_2.1.0_linux_amd64.tar.gz
+        chmod +x bao
+        
+        echo "Syncing secrets from Cuneiform..."
+
+        # Garage secrets
+        ./bao kv get -format=json galaxy-kv/prod/garage > /tmp/garage.json
+        kubectl create secret generic garage-secrets \
+          --from-literal=GARAGE_RPC_SECRET="$(cat /tmp/garage.json | jq -r '.data.data.rpc_secret')" \
+          --from-literal=GARAGE_ADMIN_TOKEN="$(cat /tmp/garage.json | jq -r '.data.data.admin_token')" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
+        # Ouroboros secrets
+        ./bao kv get -format=json galaxy-kv/prod/ouroboros > /tmp/ouroboros.json
+        kubectl create secret generic ouroboros-env-secrets \
+          --from-literal=WOODPECKER_HOST="https://ouroboros.pinwheel.fan" \
+          --from-literal=WOODPECKER_AGENT_SECRET="$(cat /tmp/ouroboros.json | jq -r '.data.data.agent_secret')" \
+          --from-literal=WOODPECKER_GITHUB_CLIENT="Ov23liIobhqrvlZAvDIM" \
+          --from-literal=WOODPECKER_GITHUB_SECRET="$(cat /tmp/ouroboros.json | jq -r '.data.data.github_secret')" \
+          --from-literal=WOODPECKER_DATABASE_DRIVER="sqlite3" \
+          --from-literal=WOODPECKER_DATABASE_DATASOURCE="/var/lib/woodpecker/woodpecker.sqlite" \
+          --from-literal=WOODPECKER_ADMIN="edrodefeld" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
+        echo "✅ All secrets synced from Cuneiform"
+    when:
+      - event: [push, manual]
+        branch: main
+
   apply-all:
     image: bitnami/kubectl
     commands:
       - echo "Applying all Kubernetes manifests..."
-      # Apply ConfigMaps and Secrets first
+      # Apply ServiceAccounts
+      - kubectl apply -f serviceaccounts/ -n galaxy || true
+      # Apply ConfigMaps
       - kubectl apply -f configmaps/ -n galaxy || true
-      - kubectl apply -f secrets/ -n galaxy || true
       # Apply RBAC
       - kubectl apply -f rbac/ || true
+      # Apply Volumes
+      - kubectl apply -f volumes/ -n galaxy || true
       # Apply Services
       - kubectl apply -f services/ -n galaxy || true
       # Apply Ingress
