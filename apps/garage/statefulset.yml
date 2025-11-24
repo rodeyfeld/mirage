@@ -16,6 +16,7 @@ spec:
       labels:
         app: garage
     spec:
+      serviceAccountName: garage
       containers:
       - name: garage
         image: dxflrs/garage:v2.1.0

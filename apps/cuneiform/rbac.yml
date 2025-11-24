@@ -1,0 +1,5 @@
+# Cuneiform (OpenBao/Vault) - Kubernetes auth delegator
+# Needs TokenReview API access to validate ServiceAccount tokens
+# ClusterRoleBinding is defined in cluster/security/auth-delegator.yml
+# Binds to system:auth-delegator ClusterRole
+

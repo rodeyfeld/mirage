@@ -13,6 +13,7 @@ spec:
       labels:
         name: ouroboros-server
     spec:
+      serviceAccountName: ouroboros
       containers:
         - name: server
           image: woodpeckerci/woodpecker-server:latest

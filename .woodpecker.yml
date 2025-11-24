@@ -45,7 +45,7 @@ steps:
       # Apply only namespace-scoped resources that CI has permission for
       # Cluster-scoped resources (RBAC, PV, Ingress, ServiceAccounts) managed manually
       - |
-        for file in apps/*/deployment.yml apps/*/service*.yml apps/*/configmap.yml \
+        for file in apps/*/deployment.yml apps/*/service.yml apps/*/configmap.yml \
                     apps/*/statefulset.yml apps/*/*pvc.yml apps/*/job.yml; do
           [ -f "$file" ] && kubectl apply -f "$file" -n galaxy
         done

@@ -13,6 +13,7 @@ spec:
       labels:
         name: augur
     spec:
+      serviceAccountName: augur
       containers:
         - name: augur
           image: edrodefeld/augur

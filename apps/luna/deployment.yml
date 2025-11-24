@@ -13,6 +13,7 @@ spec:
       labels:
         name: luna
     spec:
+      serviceAccountName: luna
       containers:
         - name: luna
           image: edrodefeld/luna

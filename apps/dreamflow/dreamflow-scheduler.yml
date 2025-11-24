@@ -13,6 +13,7 @@ spec:
       labels:
         name: dreamflow-scheduler
     spec:
+      serviceAccountName: dreamflow
       containers:
         - name: dreamflow-scheduler
           image: edrodefeld/dreamflow

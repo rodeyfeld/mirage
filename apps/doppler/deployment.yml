@@ -13,6 +13,7 @@ spec:
       labels:
         name: doppler
     spec:
+      serviceAccountName: doppler
       containers:
         - name: doppler
           image: edrodefeld/doppler

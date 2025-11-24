@@ -13,6 +13,7 @@ spec:
       labels:
         name: atlas
     spec:
+      serviceAccountName: atlas
       containers:
       - name: atlas 
         image: edrodefeld/atlas

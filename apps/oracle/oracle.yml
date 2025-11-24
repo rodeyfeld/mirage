@@ -6,6 +6,7 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: oracle
       containers:
         - name: oracle 
           image: edrodefeld/oracle

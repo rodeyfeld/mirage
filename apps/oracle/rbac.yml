@@ -1,0 +1,4 @@
+# Oracle (DB Migration Job) - No Kubernetes API access required
+# This ServiceAccount exists for identity purposes only
+# No Role/RoleBinding needed - app has zero K8s permissions
+
