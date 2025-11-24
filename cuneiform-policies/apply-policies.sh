@@ -28,6 +28,51 @@ if [ -z "$POD" ]; then
 fi
 
 echo "Applying policies to Cuneiform pod: $POD"
+echo ""
+
+# Pre-flight checks
+echo "Running pre-flight checks..."
+kubectl exec -n galaxy $POD -- sh -c "
+export BAO_ADDR=http://127.0.0.1:8200
+export BAO_TOKEN=$TOKEN
+
+# Check if sealed
+if bao status | grep -q 'Sealed.*true'; then
+  echo 'Error: OpenBao is sealed. Unseal it first.'
+  exit 1
+fi
+
+# Check/enable Kubernetes auth
+if ! bao auth list | grep -q 'kubernetes/'; then
+  echo 'Enabling Kubernetes auth method...'
+  bao auth enable kubernetes
+fi
+
+# Check/enable KV engine
+if ! bao secrets list | grep -q 'galaxy-kv/'; then
+  echo 'Error: galaxy-kv secrets engine not found'
+  exit 1
+fi
+
+echo 'Pre-flight checks passed ✓'
+"
+
+echo ""
+echo "Configuring Kubernetes auth method..."
+kubectl exec -n galaxy $POD -- sh -c "
+export BAO_ADDR=http://127.0.0.1:8200
+export BAO_TOKEN=$TOKEN
+
+# Configure Kubernetes auth
+bao write auth/kubernetes/config \
+  token_reviewer_jwt=\"\$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" \
+  kubernetes_host=\"https://kubernetes.default.svc:443\" \
+  kubernetes_ca_cert=\"\$(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt)\" \
+  disable_iss_validation=true
+"
+
+echo ""
+echo "Creating policies..."
 
 # Apply each policy
 for policy in atlas augur doppler dreamflow ouroboros garage; do
@@ -94,4 +139,11 @@ bao write auth/kubernetes/role/garage \
 
 echo ""
 echo "✅ All policies and roles created successfully!"
+echo ""
+echo "Summary:"
+echo "  - Kubernetes auth: configured"
+echo "  - Policies created: 6 (atlas, augur, doppler, dreamflow, ouroboros, garage)"
+echo "  - Roles created: 6 (bound to ServiceAccounts)"
+echo ""
+echo "Next step: Update deployments to use the new ServiceAccounts"
 
