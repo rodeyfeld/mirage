@@ -67,4 +67,3 @@ steps:
     when:
       - event: [push, manual]
         branch: main
-        evaluate: 'CI_COMMIT_MESSAGE contains "[restart]" || CI_PIPELINE_EVENT == "manual"'
