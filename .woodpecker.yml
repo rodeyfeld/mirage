@@ -41,18 +41,15 @@ steps:
   apply-all:
     image: bitnami/kubectl
     commands:
-      - echo "Applying all Kubernetes manifests..."
-      # Apply RBAC
-      - kubectl apply -f rbac/ || true
-      # Apply Cluster Security (Certs, Auth Bindings)
-      - kubectl apply -f cluster/security/ -n galaxy || true
-      # Apply Cluster Routing (Middleware, Ingress)
-      - kubectl apply -f cluster/routing/ -n galaxy || true
-      # Apply all apps (contains deployments, services, configmaps, volumes, jobs, serviceaccounts)
-      - kubectl apply -R -f apps/ -n galaxy || true
-      # Apply Ingress (Moved to cluster/routing, keeping this line just in case, but can remove later)
-      # - kubectl apply -f ingress.yml -n galaxy || true
-      - echo "All manifests applied!"
+      - echo "Applying app manifests (namespace-scoped only)..."
+      # Apply only namespace-scoped resources that CI has permission for
+      # Cluster-scoped resources (RBAC, PV, Ingress, ServiceAccounts) managed manually
+      - |
+        for file in apps/*/deployment.yml apps/*/service*.yml apps/*/configmap.yml \
+                    apps/*/statefulset.yml apps/*/*pvc.yml apps/*/job.yml; do
+          [ -f "$file" ] && kubectl apply -f "$file" -n galaxy
+        done
+      - echo "App manifests applied :)"
     when:
       - event: [push, manual]
         branch: main
@@ -63,7 +60,7 @@ steps:
       - echo "Restarting all resources..."
       - kubectl rollout restart statefulset -n galaxy
       - kubectl rollout restart deployment -n galaxy
-      - echo "✅ All resources restarted!"
+      - echo "All resources restarted"
     when:
       - event: [push, manual]
         branch: main
