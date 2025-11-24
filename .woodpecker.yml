@@ -8,7 +8,7 @@ steps:
     commands:
       - |
         # Install bao CLI
-        wget -q https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_linux_amd64.tar.gz
+        curl -fsSL -o bao_2.1.0_linux_amd64.tar.gz https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_linux_amd64.tar.gz
         tar -xzf bao_2.1.0_linux_amd64.tar.gz
         chmod +x bao
         
