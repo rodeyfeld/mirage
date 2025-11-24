@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dreamflow-ingress
+  namespace: galaxy
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-proxy-headers: "X-Forwarded-Proto: https"
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: dreamflow.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dreamflow-webserver-service
+                port:
+                  number: 8080
+    - host: flower.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dreamflow-flower-service
+                port:
+                  number: 5555
+  tls:
+    - secretName: dreamflow-tls
+      hosts:
+        - dreamflow.pinwheel.fan
+    - secretName: flower-tls
+      hosts:
+        - flower.pinwheel.fan
+

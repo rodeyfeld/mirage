@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cuneiform-ingress
+  namespace: galaxy
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-proxy-headers: "X-Forwarded-Proto: https"
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: cuneiform.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cuneiform-service
+                port:
+                  number: 8200
+  tls:
+    - secretName: cuneiform-tls
+      hosts:
+        - cuneiform.pinwheel.fan
+

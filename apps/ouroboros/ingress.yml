@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ouroboros-ingress
+  namespace: galaxy
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-proxy-headers: "X-Forwarded-Proto: https"
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: ouroboros.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ouroboros-service
+                port:
+                  number: 8001
+  tls:
+    - secretName: ouroboros-tls
+      hosts:
+        - ouroboros.pinwheel.fan
+

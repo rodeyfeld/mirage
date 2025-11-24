@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kami-ingress
+  namespace: galaxy
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-proxy-headers: "X-Forwarded-Proto: https"
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: kami.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kami-service
+                port:
+                  number: 8888
+  tls:
+    - secretName: kami-tls
+      hosts:
+        - kami.pinwheel.fan
+

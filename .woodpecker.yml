@@ -42,22 +42,16 @@ steps:
     image: bitnami/kubectl
     commands:
       - echo "Applying all Kubernetes manifests..."
-      # Apply ServiceAccounts
-      - kubectl apply -f serviceaccounts/ -n galaxy || true
-      # Apply ConfigMaps
-      - kubectl apply -f configmaps/ -n galaxy || true
       # Apply RBAC
       - kubectl apply -f rbac/ || true
-      # Apply Volumes
-      - kubectl apply -f volumes/ -n galaxy || true
-      # Apply Services
-      - kubectl apply -f services/ -n galaxy || true
-      # Apply Ingress
-      - kubectl apply -f ingress.yml -n galaxy || true
-      # Apply Deployments and StatefulSets
-      - kubectl apply -f deployments/ -n galaxy || true
-      # Apply Jobs
-      - kubectl apply -f jobs/ -n galaxy || true
+      # Apply Cluster Security (Certs, Auth Bindings)
+      - kubectl apply -f cluster/security/ -n galaxy || true
+      # Apply Cluster Routing (Middleware, Ingress)
+      - kubectl apply -f cluster/routing/ -n galaxy || true
+      # Apply all apps (contains deployments, services, configmaps, volumes, jobs, serviceaccounts)
+      - kubectl apply -R -f apps/ -n galaxy || true
+      # Apply Ingress (Moved to cluster/routing, keeping this line just in case, but can remove later)
+      # - kubectl apply -f ingress.yml -n galaxy || true
       - echo "All manifests applied!"
     when:
       - event: [push, manual]
@@ -66,29 +60,10 @@ steps:
   restart-deployments:
     image: bitnami/kubectl
     commands:
-      - echo "Restarting all deployments in order..."
-      # Core infrastructure first
-      - kubectl rollout restart statefulset/garage -n galaxy || true
-      - kubectl rollout restart deployment/atlas -n galaxy || true
-      # Backend services
-      - kubectl rollout restart deployment/augur -n galaxy || true
-      # Frontend
-      - kubectl rollout restart deployment/luna -n galaxy || true
-      # Other services
-      - kubectl rollout restart deployment/doppler -n galaxy || true
-      - kubectl rollout restart deployment/kami -n galaxy || true
-      - kubectl rollout restart deployment/enchiridion -n galaxy || true
-      - kubectl rollout restart deployment/enchiridion-postgres -n galaxy || true
-      - kubectl rollout restart deployment/enchiridion-redis -n galaxy || true
-      # CI/CD infrastructure
-      - kubectl rollout restart deployment/ouroboros-server -n galaxy || true
-      - kubectl rollout restart deployment/ouroboros-agent -n galaxy || true
-      # Dreamflow components
-      - kubectl rollout restart deployment/dreamflow-webserver -n galaxy || true
-      - kubectl rollout restart deployment/dreamflow-worker -n galaxy || true
-      - kubectl rollout restart deployment/dreamflow-flower -n galaxy || true
-      - kubectl rollout restart deployment/dreamflow-redis -n galaxy || true
-      - echo "All deployments restarted!"
+      - echo "Restarting all resources..."
+      - kubectl rollout restart statefulset --all -n galaxy || true
+      - kubectl rollout restart deployment --all -n galaxy || true
+      - echo "✅ All resources restarted!"
     when:
       - event: [push, manual]
         branch: main
