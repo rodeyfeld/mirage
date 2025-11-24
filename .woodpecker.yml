@@ -8,8 +8,7 @@ steps:
     commands:
       - |
         # Install bao CLI
-        curl -fsSL -o bao.tar.gz https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_Linux_x86_64.tar.gz
-        tar -xzf bao.tar.gz
+        curl -fsSL https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_Linux_x86_64.tar.gz | tar -xz
         chmod +x bao
         
         echo "Syncing secrets from Cuneiform..."
