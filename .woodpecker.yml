@@ -77,6 +77,12 @@ steps:
           --from-literal=S3_SECRET_ACCESS_KEY="$(cat /tmp/doppler.json | jq -r '.data.data.s3_secret_access_key')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
+        # Oracle secrets
+        /tmp/bao kv get -format=json galaxy-kv/prod/oracle > /tmp/oracle.json
+        kubectl create secret generic oracle-env-secrets \
+          --from-literal=POSTGRES_DB_URL="$(cat /tmp/oracle.json | jq -r '.data.data.postgres_db_url')" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
         echo "✅ All secrets synced from Cuneiform"
     when:
       - event: [push, manual]
