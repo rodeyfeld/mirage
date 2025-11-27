@@ -27,13 +27,13 @@ spec:
                 name: augur-env-secrets
           livenessProbe:
             httpGet:
-              path: /livez
+              path: /api/livez
               port: 8000
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /readyz
+              path: /api/readyz
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 5
