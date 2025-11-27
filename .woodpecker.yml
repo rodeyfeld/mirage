@@ -60,6 +60,7 @@ steps:
         kubectl create secret generic augur-env-secrets \
           --from-literal=AUGUR_SECRET_KEY="$(cat /tmp/augur.json | jq -r '.data.data.secret_key')" \
           --from-literal=AUGUR_DB_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.db_password')" \
+          --from-literal=AUGUR_DREAMFLOW_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.dreamflow_password')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
         echo "✅ All secrets synced from Cuneiform"
