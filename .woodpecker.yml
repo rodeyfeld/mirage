@@ -55,6 +55,13 @@ steps:
           --from-literal=WOODPECKER_ADMIN="edrodefeld" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
+        # Augur secrets
+        /tmp/bao kv get -format=json galaxy-kv/prod/augur > /tmp/augur.json
+        kubectl create secret generic augur-env-secrets \
+          --from-literal=AUGUR_SECRET_KEY="$(cat /tmp/augur.json | jq -r '.data.data.secret_key')" \
+          --from-literal=AUGUR_DB_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.db_password')" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
         echo "✅ All secrets synced from Cuneiform"
     when:
       - event: [push, manual]
