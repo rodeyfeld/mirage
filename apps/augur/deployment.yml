@@ -29,11 +29,17 @@ spec:
             httpGet:
               path: /api/livez
               port: 8000
+              httpHeaders:
+                - name: Host
+                  value: augur-service
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /api/readyz
               port: 8000
+              httpHeaders:
+                - name: Host
+                  value: augur-service
             initialDelaySeconds: 5
             periodSeconds: 5

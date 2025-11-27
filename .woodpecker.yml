@@ -63,6 +63,20 @@ steps:
           --from-literal=AUGUR_DREAMFLOW_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.dreamflow_password')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
+        # Atlas secrets (PostgreSQL)
+        /tmp/bao kv get -format=json galaxy-kv/prod/atlas > /tmp/atlas.json
+        kubectl create secret generic atlas-env-secrets \
+          --from-literal=POSTGRES_PASSWORD="$(cat /tmp/atlas.json | jq -r '.data.data.postgres_password')" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
+        # Doppler secrets
+        /tmp/bao kv get -format=json galaxy-kv/prod/doppler > /tmp/doppler.json
+        kubectl create secret generic doppler-env-secrets \
+          --from-literal=DOPPLER_SESSION_SECRET="$(cat /tmp/doppler.json | jq -r '.data.data.session_secret')" \
+          --from-literal=S3_ACCESS_KEY_ID="$(cat /tmp/doppler.json | jq -r '.data.data.s3_access_key_id')" \
+          --from-literal=S3_SECRET_ACCESS_KEY="$(cat /tmp/doppler.json | jq -r '.data.data.s3_secret_access_key')" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
         echo "✅ All secrets synced from Cuneiform"
     when:
       - event: [push, manual]
