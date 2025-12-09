@@ -45,15 +45,3 @@ spec:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: noctis-postgres-pvc
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: noctis-postgres-pvc
-  namespace: galaxy
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
