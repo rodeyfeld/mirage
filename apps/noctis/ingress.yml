@@ -4,13 +4,11 @@ metadata:
   name: noctis-ingress
   namespace: galaxy
   annotations:
-    kubernetes.io/ingress.class: traefik
-    cert-manager.io/cluster-issuer: letsencrypt-production
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-proxy-headers: "X-Forwarded-Proto: https"
+    ingress.kubernetes.io/ssl-redirect: "true"
 spec:
-  tls:
-    - hosts:
-        - noctis.pinwheel.fan
-      secretName: noctis-tls
+  ingressClassName: traefik
   rules:
     - host: noctis.pinwheel.fan
       http:
@@ -22,4 +20,7 @@ spec:
                 name: noctis-prefect-service
                 port:
                   number: 4200
-
+  tls:
+    - secretName: noctis-tls
+      hosts:
+        - noctis.pinwheel.fan
