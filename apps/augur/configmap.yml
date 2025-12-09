@@ -21,6 +21,5 @@ data:
   AUGUR_DB_NAME: "augur"
   AUGUR_DB_USER: "postgres"
   
-  # Dreamflow/Airflow integration
-  AUGUR_DREAMFLOW_HOST: "http://dreamflow-webserver-service.galaxy.svc.cluster.local:8080"
-  AUGUR_DREAMFLOW_USER: "airflow"
+  # Noctis/Prefect integration (replaces Dreamflow/Airflow)
+  NOCTIS_URL: "http://noctis-prefect-service.galaxy.svc.cluster.local:4200"

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noctis-prefect-server
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: noctis-prefect-server
+  template:
+    metadata:
+      labels:
+        name: noctis-prefect-server
+    spec:
+      serviceAccountName: noctis
+      containers:
+        - name: prefect-server
+          image: prefecthq/prefect:3-latest
+          command: ["prefect", "server", "start"]
+          ports:
+            - containerPort: 4200
+          env:
+            - name: PREFECT_SERVER_API_HOST
+              value: "0.0.0.0"
+          envFrom:
+            - configMapRef:
+                name: noctis-config
+            - secretRef:
+                name: noctis-env-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 4200
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 4200
+            initialDelaySeconds: 30
+            periodSeconds: 10

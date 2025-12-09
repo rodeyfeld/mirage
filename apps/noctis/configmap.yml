@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: noctis-config
+  namespace: galaxy
+data:
+  # Prefect Server Configuration
+  PREFECT_SERVER_API_HOST: "0.0.0.0"
+  PREFECT_API_URL: "http://noctis-prefect-service.galaxy.svc.cluster.local:4200/api"
+  PREFECT_UI_API_URL: "https://noctis.pinwheel.fan/api"
+  
+  # Atlas Database (PostgreSQL/PostGIS - Augur data)
+  ATLAS_DB_HOST: "atlas-service.galaxy.svc.cluster.local"
+  ATLAS_DB_PORT: "5432"
+  ATLAS_DB_NAME: "augur"
+  ATLAS_DB_USER: "postgres"
+  
+  # Augur API
+  NOCTIS_AUGUR_API_URL: "http://augur-service.galaxy.svc.cluster.local:8000"

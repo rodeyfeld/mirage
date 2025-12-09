@@ -60,7 +60,19 @@ steps:
         kubectl create secret generic augur-env-secrets \
           --from-literal=AUGUR_SECRET_KEY="$(cat /tmp/augur.json | jq -r '.data.data.secret_key')" \
           --from-literal=AUGUR_DB_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.db_password')" \
-          --from-literal=AUGUR_DREAMFLOW_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.dreamflow_password')" \
+          --from-literal=NOCTIS_USER="$(cat /tmp/augur.json | jq -r '.data.data.noctis_user')" \
+          --from-literal=NOCTIS_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.noctis_password')" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
+        # Noctis secrets (Prefect orchestration)
+        /tmp/bao kv get -format=json galaxy-kv/prod/noctis > /tmp/noctis.json
+        /tmp/bao kv get -format=json galaxy-kv/prod/atlas > /tmp/atlas_for_noctis.json
+        kubectl create secret generic noctis-env-secrets \
+          --from-literal=PREFECT_DB_PASSWORD="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_db_password')" \
+          --from-literal=PREFECT_API_DATABASE_CONNECTION_URL="postgresql+asyncpg://prefect:$(cat /tmp/noctis.json | jq -r '.data.data.prefect_db_password')@noctis-postgres-service:5432/prefect" \
+          --from-literal=PREFECT_SERVER_API_AUTH_STRING="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_auth_string')" \
+          --from-literal=PREFECT_API_AUTH_STRING="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_auth_string')" \
+          --from-literal=ATLAS_DB_PASSWORD="$(cat /tmp/atlas_for_noctis.json | jq -r '.data.data.postgres_password')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
         # Atlas secrets (PostgreSQL)
