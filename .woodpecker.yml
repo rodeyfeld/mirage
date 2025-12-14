@@ -69,7 +69,7 @@ steps:
         /tmp/bao kv get -format=json galaxy-kv/prod/atlas > /tmp/atlas_for_noctis.json
         kubectl create secret generic noctis-env-secrets \
           --from-literal=PREFECT_DB_PASSWORD="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_db_password')" \
-          --from-literal=PREFECT_API_DATABASE_CONNECTION_URL="postgresql+asyncpg://prefect:$(cat /tmp/noctis.json | jq -r '.data.data.prefect_db_password')@noctis-postgres-service:5432/prefect?sslmode=disable" \
+          --from-literal=PREFECT_API_DATABASE_CONNECTION_URL="postgresql+asyncpg://prefect:$(cat /tmp/noctis.json | jq -r '.data.data.prefect_db_password')@noctis-postgres-service:5432/prefect" \
           --from-literal=PREFECT_SERVER_API_AUTH_STRING="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_auth_string')" \
           --from-literal=PREFECT_API_AUTH_STRING="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_auth_string')" \
           --from-literal=ATLAS_DB_PASSWORD="$(cat /tmp/atlas_for_noctis.json | jq -r '.data.data.postgres_password')" \
