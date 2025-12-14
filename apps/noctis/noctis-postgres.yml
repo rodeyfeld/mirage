@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: noctis-postgres
   namespace: galaxy
 spec:
+  serviceName: noctis-postgres-service
   replicas: 1
   selector:
     matchLabels:
