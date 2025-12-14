@@ -9,6 +9,12 @@ data:
   PREFECT_API_URL: "http://noctis-prefect-service.galaxy.svc.cluster.local:4200/api"
   PREFECT_UI_API_URL: "https://noctis.pinwheel.fan/api"
   
+  # Noctis Postgres (Prefect metadata)
+  # Used by postgres container to initialize the database
+  POSTGRES_USER: "prefect"
+  POSTGRES_DB: "prefect"
+  # Note: PREFECT_API_DATABASE_CONNECTION_URL is in secrets (contains password)
+  
   # Atlas Database (PostgreSQL/PostGIS - Augur data)
   ATLAS_DB_HOST: "atlas-service.galaxy.svc.cluster.local"
   ATLAS_DB_PORT: "5432"

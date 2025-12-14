@@ -19,11 +19,10 @@ spec:
           image: postgres:14
           ports:
             - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: noctis-config
           env:
-            - name: POSTGRES_USER
-              value: "prefect"
-            - name: POSTGRES_DB
-              value: "prefect"
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
