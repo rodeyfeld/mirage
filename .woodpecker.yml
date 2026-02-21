@@ -100,7 +100,7 @@ steps:
         kubectl create secret generic parakeet-env-secrets \
           --from-literal=SECRET_KEY_BASE="$(cat /tmp/parakeet.json | jq -r '.data.data.secret_key_base')" \
           --from-literal=POSTGRES_PASSWORD="$(cat /tmp/parakeet.json | jq -r '.data.data.postgres_password')" \
-          --from-literal=DATABASE_URL="ecto://parakeet:$(cat /tmp/parakeet.json | jq -r '.data.data.postgres_password')@parakeet-postgres.galaxy.svc.cluster.local/parakeet_prod" \
+          --from-literal=DATABASE_URL="$(cat /tmp/parakeet.json | jq -r '.data.data.database_url')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
         echo "✅ All secrets synced from Cuneiform"
