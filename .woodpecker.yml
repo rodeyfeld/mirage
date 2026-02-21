@@ -95,6 +95,14 @@ steps:
           --from-literal=POSTGRES_DB_URL="$(cat /tmp/oracle.json | jq -r '.data.data.postgres_db_url')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
+        # Parakeet secrets (Phoenix game server)
+        /tmp/bao kv get -format=json galaxy-kv/prod/parakeet > /tmp/parakeet.json
+        kubectl create secret generic parakeet-env-secrets \
+          --from-literal=SECRET_KEY_BASE="$(cat /tmp/parakeet.json | jq -r '.data.data.secret_key_base')" \
+          --from-literal=POSTGRES_PASSWORD="$(cat /tmp/parakeet.json | jq -r '.data.data.postgres_password')" \
+          --from-literal=DATABASE_URL="ecto://parakeet:$(cat /tmp/parakeet.json | jq -r '.data.data.postgres_password')@parakeet-postgres.galaxy.svc.cluster.local/parakeet_prod" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
         echo "✅ All secrets synced from Cuneiform"
     when:
       - event: [push, manual]
