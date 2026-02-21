@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parakeet
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: parakeet
+  template:
+    metadata:
+      labels:
+        name: parakeet
+    spec:
+      serviceAccountName: parakeet
+      containers:
+        - name: parakeet
+          image: edrodefeld/parakeet
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: parakeet-config
+            - secretRef:
+                name: parakeet-env-secrets
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 4000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 5

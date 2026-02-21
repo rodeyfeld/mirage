@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: parakeet-postgres-volume
+  labels:
+    name: parakeet-postgres-volume
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/parakeet/postgres
+  persistentVolumeReclaimPolicy: Retain
