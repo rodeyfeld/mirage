@@ -5,8 +5,7 @@ metadata:
   namespace: galaxy
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    ingress.kubernetes.io/ssl-proxy-headers: "X-Forwarded-Proto: https"
-    ingress.kubernetes.io/ssl-redirect: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: galaxy-redirect-https@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
