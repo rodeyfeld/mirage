@@ -139,7 +139,9 @@ steps:
           echo "Restarting $ss..."
           kubectl rollout restart -n galaxy "$ss"
         done
-      - kubectl rollout restart deployment -n galaxy
+      - |
+        # Exclude ouroboros — restarting the agent kills the running pipeline step
+        kubectl get deployment -n galaxy -o name | grep -v ouroboros | xargs -r kubectl rollout restart -n galaxy
       - echo "All restart requests sent"
     when:
       - event: [push, manual]
