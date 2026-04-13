@@ -128,8 +128,14 @@ steps:
     image: bitnami/kubectl
     commands:
       - echo "Restarting all resources (excluding cuneiform)..."
-      # Restart statefulsets except cuneiform (vault must stay sealed-aware)
-      - kubectl get statefulset -n galaxy -o name | grep -v cuneiform | xargs -r kubectl rollout restart -n galaxy
+      # StatefulSets with RWO PVCs must be restarted one at a time — restarting
+      # all at once causes a brief two-pod overlap that deadlocks on the volume.
+      - |
+        for ss in $(kubectl get statefulset -n galaxy -o name | grep -v cuneiform); do
+          echo "Restarting $ss..."
+          kubectl rollout restart -n galaxy "$ss"
+          kubectl rollout status -n galaxy "$ss" --timeout=120s
+        done
       - kubectl rollout restart deployment -n galaxy
       - echo "All resources restarted"
     when:
