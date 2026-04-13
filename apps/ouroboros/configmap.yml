@@ -13,3 +13,5 @@ data:
   WOODPECKER_BACKEND_K8S_SERVICE_ACCOUNT_NAME: "ouroboros-deployer"
   WOODPECKER_LOG_LEVEL: "info"
   WOODPECKER_GITHUB: "true"
+  # v3 removed default privilege for docker-buildx; explicitly allow it
+  WOODPECKER_PLUGINS_PRIVILEGED: "woodpeckerci/plugin-docker-buildx"
