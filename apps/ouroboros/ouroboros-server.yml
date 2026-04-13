@@ -5,6 +5,10 @@ metadata:
   namespace: galaxy
 spec:
   replicas: 1
+  # RWO PVC: only one pod can mount the volume. RollingUpdate would run old+new
+  # together and deadlock; Recreate tears down the old pod before starting the new.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       name: ouroboros-server
