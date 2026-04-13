@@ -16,7 +16,7 @@ spec:
       serviceAccountName: ouroboros-deployer
       containers:
         - name: agent
-          image: woodpeckerci/woodpecker-agent:latest
+          image: woodpeckerci/woodpecker-agent:v3.13.0
           envFrom:
             - configMapRef:
                 name: ouroboros-config
