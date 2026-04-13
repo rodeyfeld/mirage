@@ -6,6 +6,10 @@ metadata:
 spec:
   serviceName: noctis-postgres-service
   replicas: 1
+  # OnDelete: pod is only replaced after manual deletion, guaranteeing the old
+  # pod fully releases the RWO PVC before the new one mounts it.
+  updateStrategy:
+    type: OnDelete
   selector:
     matchLabels:
       name: noctis-postgres
