@@ -18,6 +18,12 @@ spec:
         name: ouroboros-server
     spec:
       serviceAccountName: ouroboros
+      # v3 server runs non-root; SQLite on a PVC from older (root) runs is often
+      # root-owned → "attempt to write a readonly database". fsGroup lets the
+      # kubelet align volume permissions with the container user (typically 1000).
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: server
           # v3+ has no `latest` tag — use semver; keep agent image in sync
