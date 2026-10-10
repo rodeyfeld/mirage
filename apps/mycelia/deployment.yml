@@ -25,7 +25,8 @@ spec:
                 name: mycelia-config
             - secretRef:
                 name: mycelia-env-secrets
-          # /health is the only route outside basic auth and force_ssl.
+          # /health is the only route outside force_ssl and both auth gates (basic
+          # auth on pages, the ingest token on /api); /assets bundles are public.
           livenessProbe:
             httpGet:
               path: /health
