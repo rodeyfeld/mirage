@@ -65,3 +65,14 @@ docker push edrodefeld/luna:latest
 kubectl rollout restart deployment/luna -n galaxy
 kubectl rollout status deployment/luna -n galaxy
 ```
+
+## Cluster components
+
+Applied by hand, not by the pipeline:
+
+- **cert-manager**: static manifest pinned in `cluster/cert-manager/cert-manager.yml`, no Helm. To upgrade, swap in the release's `cert-manager.yaml` (one minor at a time) and run:
+  ```bash
+  ssh galaxy 'k3s kubectl apply --server-side --force-conflicts -f -' < cluster/cert-manager/cert-manager.yml
+  ```
+- **k3s** (and the Traefik it bundles): `./cluster/k3s-upgrade.sh <version>`, one minor at a time. It backs up server state to `/root` before swapping the binary.
+- **Routing**: `cluster/routing/middleware-https.yml` and `apps/*/ingress.yml`. Middlewares must use `traefik.io/v1alpha1`, because Traefik 3 ignores `traefik.containo.us`.
