@@ -12,6 +12,10 @@ rules:
   - apiGroups: ["apps"]
     resources: ["statefulsets"]
     verbs: ["get", "list", "watch"]
+  # Each Deployment revision is a ReplicaSet; the deploys page reads them for rollout history
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
   # Allow reading jobs
   - apiGroups: ["batch"]
     resources: ["jobs"]
