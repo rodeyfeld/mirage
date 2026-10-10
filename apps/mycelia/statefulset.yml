@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mycelia-postgres
+  namespace: galaxy
+spec:
+  serviceName: mycelia-postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      name: mycelia-postgres
+  template:
+    metadata:
+      labels:
+        name: mycelia-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: mycelia-postgres-config
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mycelia-env-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "mycelia"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "mycelia"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: mycelia-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mycelia-postgres
+  namespace: galaxy
+spec:
+  selector:
+    name: mycelia-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

@@ -103,6 +103,16 @@ steps:
           --from-literal=DATABASE_URL="$(cat /tmp/parakeet.json | jq -r '.data.data.database_url')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
+        # Mycelia secrets (Claude Code agent observability)
+        /tmp/bao kv get -format=json galaxy-kv/prod/mycelia > /tmp/mycelia.json
+        kubectl create secret generic mycelia-env-secrets \
+          --from-literal=SECRET_KEY_BASE="$(cat /tmp/mycelia.json | jq -r '.data.data.secret_key_base')" \
+          --from-literal=POSTGRES_PASSWORD="$(cat /tmp/mycelia.json | jq -r '.data.data.postgres_password')" \
+          --from-literal=DATABASE_URL="ecto://mycelia:$(cat /tmp/mycelia.json | jq -r '.data.data.postgres_password')@mycelia-postgres:5432/mycelia_prod" \
+          --from-literal=MYCELIA_INGEST_TOKEN="$(cat /tmp/mycelia.json | jq -r '.data.data.ingest_token')" \
+          --from-literal=MYCELIA_BASIC_AUTH_PASSWORD="$(cat /tmp/mycelia.json | jq -r '.data.data.basic_auth_password')" \
+          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
+        
         echo "✅ All secrets synced from Cuneiform"
     when:
       - event: [push, manual]

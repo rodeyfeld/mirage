@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mycelia
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: mycelia
+  template:
+    metadata:
+      labels:
+        name: mycelia
+    spec:
+      serviceAccountName: mycelia
+      containers:
+        - name: mycelia
+          image: edrodefeld/mycelia
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: mycelia-config
+            - secretRef:
+                name: mycelia-env-secrets
+          # /health is the only route outside basic auth and force_ssl.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 5

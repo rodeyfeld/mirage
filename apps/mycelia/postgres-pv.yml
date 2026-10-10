@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mycelia-postgres-volume
+  labels:
+    name: mycelia-postgres-volume
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/mycelia/postgres
+  persistentVolumeReclaimPolicy: Retain

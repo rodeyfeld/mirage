@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mycelia-config
+  namespace: galaxy
+data:
+  PHX_SERVER: "true"
+  PHX_HOST: "mycelia.pinwheel.fan"
+  PORT: "4000"
+  POOL_SIZE: "5"
+  MYCELIA_BASIC_AUTH_USER: "rodeyfeld"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mycelia-postgres-config
+  namespace: galaxy
+data:
+  POSTGRES_USER: "mycelia"
+  POSTGRES_DB: "mycelia_prod"
+  PGDATA: "/var/lib/postgresql/data/pgdata"

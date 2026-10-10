@@ -75,7 +75,7 @@ echo ""
 echo "Creating policies..."
 
 # Apply each policy
-for policy in atlas augur doppler dreamflow noctis ouroboros garage; do
+for policy in atlas augur doppler dreamflow noctis ouroboros garage mycelia; do
   echo "Creating policy: ${policy}-policy"
   kubectl exec -n galaxy $POD -- sh -c "
     export BAO_ADDR=http://127.0.0.1:8200
@@ -142,6 +142,13 @@ bao write auth/kubernetes/role/garage \
   bound_service_account_namespaces=galaxy \
   policies=garage-policy \
   ttl=24h
+
+# Mycelia role - bound to mycelia ServiceAccount
+bao write auth/kubernetes/role/mycelia \
+  bound_service_account_names=mycelia \
+  bound_service_account_namespaces=galaxy \
+  policies=mycelia-policy \
+  ttl=24h
 "
 
 echo ""
@@ -149,8 +156,8 @@ echo "✅ All policies and roles created successfully!"
 echo ""
 echo "Summary:"
 echo "  - Kubernetes auth: configured"
-echo "  - Policies created: 7 (atlas, augur, doppler, dreamflow, noctis, ouroboros, garage)"
-echo "  - Roles created: 7 (bound to ServiceAccounts)"
+echo "  - Policies created: 8 (atlas, augur, doppler, dreamflow, noctis, ouroboros, garage, mycelia)"
+echo "  - Roles created: 8 (bound to ServiceAccounts)"
 echo ""
 echo "Next step: Update deployments to use the new ServiceAccounts"
 
