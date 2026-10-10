@@ -1,4 +1,20 @@
 steps:
+  # Read-only dry run of cuneiform-policies/sync.sh: trigger a manual pipeline
+  # with CUNEIFORM_MODE=check. Reports policy/secret drift by key name only.
+  cuneiform-check:
+    image: bitnami/kubectl
+    environment:
+      BAO_ADDR: http://cuneiform-service.galaxy.svc.cluster.local:8200
+      BAO_TOKEN:
+        from_secret: cuneiform_token
+    commands:
+      - curl -fsSL -o /tmp/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 && chmod +x /tmp/yq
+      - PATH="/tmp:$PATH" cuneiform-policies/sync.sh check
+    when:
+      - event: manual
+        branch: main
+        evaluate: 'CUNEIFORM_MODE == "check"'
+
   sync-secrets:
     image: bitnami/kubectl
     environment:
@@ -103,20 +119,11 @@ steps:
           --from-literal=DATABASE_URL="$(cat /tmp/parakeet.json | jq -r '.data.data.database_url')" \
           -n galaxy --dry-run=client -o yaml | kubectl apply -f -
         
-        # Mycelia secrets (Claude Code agent observability)
-        /tmp/bao kv get -format=json galaxy-kv/prod/mycelia > /tmp/mycelia.json
-        kubectl create secret generic mycelia-env-secrets \
-          --from-literal=SECRET_KEY_BASE="$(cat /tmp/mycelia.json | jq -r '.data.data.secret_key_base')" \
-          --from-literal=POSTGRES_PASSWORD="$(cat /tmp/mycelia.json | jq -r '.data.data.postgres_password')" \
-          --from-literal=DATABASE_URL="ecto://mycelia:$(cat /tmp/mycelia.json | jq -r '.data.data.postgres_password')@mycelia-postgres:5432/mycelia_prod" \
-          --from-literal=MYCELIA_INGEST_TOKEN="$(cat /tmp/mycelia.json | jq -r '.data.data.ingest_token')" \
-          --from-literal=MYCELIA_BASIC_AUTH_PASSWORD="$(cat /tmp/mycelia.json | jq -r '.data.data.basic_auth_password')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
         echo "✅ All secrets synced from Cuneiform"
     when:
       - event: [push, manual]
         branch: main
+        evaluate: 'CUNEIFORM_MODE != "check"'
 
   apply-all:
     image: bitnami/kubectl
@@ -133,6 +140,7 @@ steps:
     when:
       - event: [push, manual]
         branch: main
+        evaluate: 'CUNEIFORM_MODE != "check"'
 
   restart-deployments:
     image: bitnami/kubectl
@@ -156,3 +164,4 @@ steps:
     when:
       - event: [push, manual]
         branch: main
+        evaluate: 'CUNEIFORM_MODE != "check"'
