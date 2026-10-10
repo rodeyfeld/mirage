@@ -58,6 +58,12 @@ gen() {
   esac
 }
 
+# A sealed vault answers 503 to everything; stop with the fix instead.
+if [ "$(bao GET sys/seal-status)" != 200 ] || jq -e '.sealed' "$TMP/body" >/dev/null; then
+  echo "cuneiform at $BAO_ADDR is sealed or unreachable; unseal it (bao operator unseal x3) and rerun"
+  exit 1
+fi
+
 # ---- 1. policies + roles -----------------------------------------------------
 echo "== policies"
 probe='{"paths":["sys/policies/acl/probe","auth/kubernetes/role/probe"]}'

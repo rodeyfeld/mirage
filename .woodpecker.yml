@@ -1,20 +1,7 @@
 steps:
-  # Read-only dry run of cuneiform-policies/sync.sh: trigger a manual pipeline
-  # with CUNEIFORM_MODE=check. Reports policy/secret drift by key name only.
-  cuneiform-check:
-    image: bitnami/kubectl
-    environment:
-      BAO_ADDR: http://cuneiform-service.galaxy.svc.cluster.local:8200
-      BAO_TOKEN:
-        from_secret: cuneiform_token
-    commands:
-      - curl -fsSL -o /tmp/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 && chmod +x /tmp/yq
-      - PATH="/tmp:$PATH" cuneiform-policies/sync.sh check
-    when:
-      - event: manual
-        branch: main
-        evaluate: 'CUNEIFORM_MODE == "check"'
-
+  # Make cuneiform + the galaxy Secrets match the repo: policies/roles from
+  # cuneiform-policies/*-policy.hcl, secrets from apps/*/secrets.yml (missing
+  # `generate:` keys are created once). See cuneiform-policies/README.md.
   sync-secrets:
     image: bitnami/kubectl
     environment:
@@ -23,107 +10,11 @@ steps:
       BAO_TOKEN:
         from_secret: cuneiform_token
     commands:
-      - |
-        # Install bao CLI
-        cd /tmp
-        curl -fsSL https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_Linux_x86_64.tar.gz | tar -xz
-        chmod +x /tmp/bao
-        
-        # Check if vault is sealed (use internal cluster address)
-        echo "Checking Cuneiform seal status..."
-        echo "BAO_ADDR: $BAO_ADDR"
-        
-        # Try to get status and show any errors
-        if ! /tmp/bao status -format=json > /tmp/seal_status.json 2>&1; then
-          echo "⚠️  Could not connect to Cuneiform. Response:"
-          cat /tmp/seal_status.json
-          echo ""
-          echo "Attempting to continue anyway (vault may still be accessible)..."
-        else
-          SEAL_STATUS=$(cat /tmp/seal_status.json | jq -r '.sealed')
-          echo "Seal status: $SEAL_STATUS"
-          if [ "$SEAL_STATUS" = "true" ]; then
-            echo "❌ Cuneiform is sealed! Please unseal it manually before deploying."
-            echo "   Run: bao operator unseal"
-            exit 1
-          fi
-          echo "✅ Cuneiform is unsealed"
-        fi
-        
-        echo "Syncing secrets from Cuneiform..."
-        
-        # Garage secrets
-        /tmp/bao kv get -format=json galaxy-kv/prod/garage > /tmp/garage.json
-        kubectl create secret generic garage-secrets \
-          --from-literal=GARAGE_RPC_SECRET="$(cat /tmp/garage.json | jq -r '.data.data.rpc_secret')" \
-          --from-literal=GARAGE_ADMIN_TOKEN="$(cat /tmp/garage.json | jq -r '.data.data.admin_token')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Ouroboros secrets
-        /tmp/bao kv get -format=json galaxy-kv/prod/ouroboros > /tmp/ouroboros.json
-        kubectl create secret generic ouroboros-env-secrets \
-          --from-literal=WOODPECKER_HOST="https://ouroboros.pinwheel.fan" \
-          --from-literal=WOODPECKER_AGENT_SECRET="$(cat /tmp/ouroboros.json | jq -r '.data.data.agent_secret')" \
-          --from-literal=WOODPECKER_GITHUB_CLIENT="Ov23liIobhqrvlZAvDIM" \
-          --from-literal=WOODPECKER_GITHUB_SECRET="$(cat /tmp/ouroboros.json | jq -r '.data.data.github_secret')" \
-          --from-literal=WOODPECKER_DATABASE_DRIVER="sqlite3" \
-          --from-literal=WOODPECKER_DATABASE_DATASOURCE="/var/lib/woodpecker/woodpecker.sqlite" \
-          --from-literal=WOODPECKER_ADMIN="edrodefeld" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Augur secrets
-        /tmp/bao kv get -format=json galaxy-kv/prod/augur > /tmp/augur.json
-        kubectl create secret generic augur-env-secrets \
-          --from-literal=AUGUR_SECRET_KEY="$(cat /tmp/augur.json | jq -r '.data.data.secret_key')" \
-          --from-literal=AUGUR_DB_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.db_password')" \
-          --from-literal=NOCTIS_USER="$(cat /tmp/augur.json | jq -r '.data.data.noctis_user')" \
-          --from-literal=NOCTIS_PASSWORD="$(cat /tmp/augur.json | jq -r '.data.data.noctis_password')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Noctis secrets (Prefect orchestration)
-        /tmp/bao kv get -format=json galaxy-kv/prod/noctis > /tmp/noctis.json
-        /tmp/bao kv get -format=json galaxy-kv/prod/atlas > /tmp/atlas_for_noctis.json
-        kubectl create secret generic noctis-env-secrets \
-          --from-literal=PREFECT_DB_PASSWORD="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_db_password')" \
-          --from-literal=PREFECT_API_DATABASE_CONNECTION_URL="postgresql+asyncpg://prefect:$(cat /tmp/noctis.json | jq -r '.data.data.prefect_db_password')@noctis-postgres-service:5432/prefect" \
-          --from-literal=PREFECT_SERVER_API_AUTH_STRING="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_auth_string')" \
-          --from-literal=PREFECT_API_AUTH_STRING="$(cat /tmp/noctis.json | jq -r '.data.data.prefect_auth_string')" \
-          --from-literal=ATLAS_DB_PASSWORD="$(cat /tmp/atlas_for_noctis.json | jq -r '.data.data.postgres_password')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Atlas secrets (PostgreSQL)
-        /tmp/bao kv get -format=json galaxy-kv/prod/atlas > /tmp/atlas.json
-        kubectl create secret generic atlas-env-secrets \
-          --from-literal=POSTGRES_PASSWORD="$(cat /tmp/atlas.json | jq -r '.data.data.postgres_password')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Doppler secrets
-        /tmp/bao kv get -format=json galaxy-kv/prod/doppler > /tmp/doppler.json
-        kubectl create secret generic doppler-env-secrets \
-          --from-literal=DOPPLER_SESSION_SECRET="$(cat /tmp/doppler.json | jq -r '.data.data.session_secret')" \
-          --from-literal=S3_ACCESS_KEY_ID="$(cat /tmp/doppler.json | jq -r '.data.data.s3_access_key_id')" \
-          --from-literal=S3_SECRET_ACCESS_KEY="$(cat /tmp/doppler.json | jq -r '.data.data.s3_secret_access_key')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Oracle secrets
-        /tmp/bao kv get -format=json galaxy-kv/prod/oracle > /tmp/oracle.json
-        kubectl create secret generic oracle-env-secrets \
-          --from-literal=POSTGRES_DB_URL="$(cat /tmp/oracle.json | jq -r '.data.data.postgres_db_url')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Parakeet secrets (Phoenix game server)
-        /tmp/bao kv get -format=json galaxy-kv/prod/parakeet > /tmp/parakeet.json
-        kubectl create secret generic parakeet-env-secrets \
-          --from-literal=SECRET_KEY_BASE="$(cat /tmp/parakeet.json | jq -r '.data.data.secret_key_base')" \
-          --from-literal=POSTGRES_PASSWORD="$(cat /tmp/parakeet.json | jq -r '.data.data.postgres_password')" \
-          --from-literal=DATABASE_URL="$(cat /tmp/parakeet.json | jq -r '.data.data.database_url')" \
-          -n galaxy --dry-run=client -o yaml | kubectl apply -f -
-        
-        echo "✅ All secrets synced from Cuneiform"
+      - curl -fsSL -o /tmp/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 && chmod +x /tmp/yq
+      - PATH="/tmp:$PATH" cuneiform-policies/sync.sh apply
     when:
       - event: [push, manual]
         branch: main
-        evaluate: 'CUNEIFORM_MODE != "check"'
 
   apply-all:
     image: bitnami/kubectl
@@ -140,7 +31,6 @@ steps:
     when:
       - event: [push, manual]
         branch: main
-        evaluate: 'CUNEIFORM_MODE != "check"'
 
   restart-deployments:
     image: bitnami/kubectl
@@ -164,4 +54,3 @@ steps:
     when:
       - event: [push, manual]
         branch: main
-        evaluate: 'CUNEIFORM_MODE != "check"'
