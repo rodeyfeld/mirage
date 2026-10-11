@@ -1,0 +1,9 @@
+[Unit]
+Description=Nightly forgejo dump for schematics
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

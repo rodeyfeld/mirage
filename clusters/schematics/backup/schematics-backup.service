@@ -1,0 +1,6 @@
+[Unit]
+Description=forgejo dump for schematics
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/schematics-backup.sh
