@@ -16,7 +16,7 @@ spec:
       serviceAccountName: mycelia
       containers:
         - name: mycelia
-          image: edrodefeld/mycelia
+          image: schematics.pinwheel.fan/rodeyfeld/mycelia
           imagePullPolicy: Always
           ports:
             - containerPort: 4000

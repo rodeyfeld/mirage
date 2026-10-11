@@ -16,7 +16,7 @@ spec:
       serviceAccountName: parakeet
       containers:
         - name: parakeet
-          image: edrodefeld/parakeet
+          image: schematics.pinwheel.fan/rodeyfeld/parakeet
           imagePullPolicy: Always
           ports:
             - containerPort: 4000

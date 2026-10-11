@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: augur-db-migrate
-          image: edrodefeld/augur
+          image: schematics.pinwheel.fan/rodeyfeld/augur
           imagePullPolicy: Always
           command: ["python", "manage.py", "migrate", "--noinput"]
           envFrom:

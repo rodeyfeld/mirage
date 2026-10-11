@@ -16,7 +16,7 @@ spec:
       serviceAccountName: augur
       containers:
         - name: augur
-          image: edrodefeld/augur
+          image: schematics.pinwheel.fan/rodeyfeld/augur
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

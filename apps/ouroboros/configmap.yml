@@ -4,14 +4,15 @@ metadata:
   name: ouroboros-config
   namespace: galaxy
 data:
+  # Forgejo registration is closed, so only schematics users can log in
   WOODPECKER_OPEN: "true"
-  WOODPECKER_ORGS: "pinwheel-labs"
   WOODPECKER_BACKEND: "kubernetes"
   WOODPECKER_BACKEND_K8S_NAMESPACE: "galaxy"
   WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
   WOODPECKER_BACKEND_K8S_SERVICE_ACCOUNT: "ouroboros-deployer"
   WOODPECKER_BACKEND_K8S_SERVICE_ACCOUNT_NAME: "ouroboros-deployer"
   WOODPECKER_LOG_LEVEL: "info"
-  WOODPECKER_GITHUB: "true"
+  WOODPECKER_FORGEJO: "true"
+  WOODPECKER_FORGEJO_URL: "https://schematics.pinwheel.fan"
   # v3 removed default privilege for docker-buildx; explicitly allow it
   WOODPECKER_PLUGINS_PRIVILEGED: "woodpeckerci/plugin-docker-buildx"

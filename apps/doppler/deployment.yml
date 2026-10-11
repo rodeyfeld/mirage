@@ -16,7 +16,7 @@ spec:
       serviceAccountName: doppler
       containers:
         - name: doppler
-          image: edrodefeld/doppler
+          image: schematics.pinwheel.fan/rodeyfeld/doppler
           imagePullPolicy: Always
           ports:
             - containerPort: 1323

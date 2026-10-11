@@ -20,7 +20,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: kami
-          image: edrodefeld/kami:latest
+          image: schematics.pinwheel.fan/rodeyfeld/kami:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

@@ -17,7 +17,7 @@ spec:
       serviceAccountName: atlas
       containers:
       - name: atlas 
-        image: edrodefeld/atlas
+        image: schematics.pinwheel.fan/rodeyfeld/atlas
         imagePullPolicy: Always
         ports:
           - containerPort: 5432

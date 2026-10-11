@@ -16,7 +16,7 @@ spec:
       serviceAccountName: noctis
       containers:
         - name: noctis
-          image: edrodefeld/noctis
+          image: schematics.pinwheel.fan/rodeyfeld/noctis
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
