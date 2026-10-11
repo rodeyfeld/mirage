@@ -27,6 +27,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: kami-config
+            - secretRef:
+                name: kami-env-secrets
+                optional: true
           resources:
             limits:
               cpu: 500m
