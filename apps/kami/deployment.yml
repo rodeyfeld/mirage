@@ -43,6 +43,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: data
+              mountPath: /data
           livenessProbe:
             httpGet:
               path: /livez
@@ -58,3 +60,6 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: kami-pvc

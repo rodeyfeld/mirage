@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kami-pvc
+  namespace: galaxy
+spec:
+  # kami's uptime history (SQLite); small, and fine to lose
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
