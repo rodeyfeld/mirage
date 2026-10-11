@@ -9,6 +9,10 @@ data:
   PORT: "4000"
   POOL_SIZE: "5"
   MYCELIA_BASIC_AUTH_USER: "rodeyfeld"
+  # The orrery's collector (/map/orrery): kami's deploys API (Woodpecker
+  # pipelines + rollouts) and noctis's Prefect API, both in-cluster.
+  MYCELIA_ORRERY_KAMI_URL: "http://kami-service.galaxy.svc.cluster.local:8888"
+  MYCELIA_ORRERY_PREFECT_URL: "http://noctis-prefect-service.galaxy.svc.cluster.local:4200/api"
 ---
 apiVersion: v1
 kind: ConfigMap
