@@ -1,0 +1,12 @@
+# k3s's bundled Traefik cuts requests off after 60s by default, which kills
+# large `docker push` layer uploads and big git pushes. No read timeout here.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    additionalArguments:
+      - "--entryPoints.web.transport.respondingTimeouts.readTimeout=0"
+      - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=0"

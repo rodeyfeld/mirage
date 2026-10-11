@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schematics
+  namespace: schematics
+spec:
+  replicas: 1
+  # One pod owns the RWO data dir; don't let a rollout start a second.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      name: schematics
+  template:
+    metadata:
+      labels:
+        name: schematics
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: forgejo
+          # LTS line; rootless runs as uid 1000 with the built-in SSH server on 2222
+          image: codeberg.org/forgejo/forgejo:15-rootless
+          ports:
+            - name: http
+              containerPort: 3000
+            - name: ssh
+              containerPort: 2222
+          envFrom:
+            - configMapRef:
+                name: schematics-config
+            - secretRef:
+                name: schematics-env-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/gitea
+              subPath: data
+            - name: data
+              mountPath: /etc/gitea
+              subPath: config
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: schematics-pvc

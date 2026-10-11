@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: schematics-postgres
+  namespace: schematics
+spec:
+  serviceName: schematics-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      name: schematics-postgres
+  template:
+    metadata:
+      labels:
+        name: schematics-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: schematics-postgres-config
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: schematics-env-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "schematics"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "schematics"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: schematics-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: schematics-postgres
+  namespace: schematics
+spec:
+  selector:
+    name: schematics-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
