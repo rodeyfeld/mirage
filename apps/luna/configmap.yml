@@ -11,3 +11,7 @@ data:
   
   # Backend API host
   LUNA_AUGUR_HOST: "http://augur-service.galaxy.svc.cluster.local:8000"
+
+  # Protomaps vector basemap key. Public by design (sent to the browser);
+  # CORS origins for it are restricted at protomaps.com/account
+  PUBLIC_PROTOMAPS_KEY: "487eb631c5cfc854"
