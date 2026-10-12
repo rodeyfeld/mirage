@@ -16,9 +16,33 @@ spec:
     spec:
       serviceAccountName: atlas
       containers:
-      - name: atlas 
-        image: schematics.pinwheel.fan/rodeyfeld/atlas
-        imagePullPolicy: Always
+      - name: atlas
+        # Pinned by digest: the atlas image is built on postgis/postgis:17-master, so a
+        # fresh `latest` could swap the PostGIS build (3.7.0dev here) under the data on
+        # any restart. To upgrade, build atlas, then bump the digest here deliberately.
+        image: schematics.pinwheel.fan/rodeyfeld/atlas@sha256:368c8f6546d4b01d306431467659d50decd57ade882661088b6d59fbe72f0695
+        imagePullPolicy: IfNotPresent
+        # augur's tables are small now that the sentinel archive lives in ephemeris;
+        # sized for the 2Gi limit, on the root disk's SSD
+        args:
+          - -c
+          - shared_buffers=512MB
+          - -c
+          - effective_cache_size=1GB
+          - -c
+          - work_mem=8MB
+          - -c
+          - maintenance_work_mem=128MB
+          - -c
+          - random_page_cost=1.1
+          - -c
+          - effective_io_concurrency=200
+          - -c
+          - temp_file_limit=2GB
+          - -c
+          - idle_in_transaction_session_timeout=10min
+          - -c
+          - log_min_duration_statement=2s
         ports:
           - containerPort: 5432
         readinessProbe:
@@ -26,9 +50,18 @@ spec:
             command: ["pg_isready", "-U", "postgres"]
           initialDelaySeconds: 5
           periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: atlas-data
+          # The 64Mi default /dev/shm is too small for parallel queries
+          - mountPath: /dev/shm
+            name: shm
         envFrom:
           - secretRef:
               name: atlas-env-secrets
@@ -36,4 +69,7 @@ spec:
         - name: atlas-data
           persistentVolumeClaim:
             claimName: atlas-volume-claim
-
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
