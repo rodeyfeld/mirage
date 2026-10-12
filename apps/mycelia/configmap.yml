@@ -17,6 +17,9 @@ data:
   MYCELIA_SPORES_HOST: "kube"
   MYCELIA_SPORES_NAMESPACE: "spores"
   MYCELIA_SPORES_IMAGE: "schematics.pinwheel.fan/rodeyfeld/spore:latest"
+  # Spores commit to the universe repos as rodeyfeld; the push token is
+  # spores_git_token in cuneiform (MYCELIA_SPORES_GIT_TOKEN).
+  MYCELIA_SPORES_GIT_EMAIL: "eric.d.rodefeld@gmail.com"
   # The orrery's collector (/map/orrery): kami's deploys API (Woodpecker
   # pipelines + rollouts) and noctis's Prefect API, both in-cluster.
   MYCELIA_ORRERY_KAMI_URL: "http://kami-service.galaxy.svc.cluster.local:8888"
