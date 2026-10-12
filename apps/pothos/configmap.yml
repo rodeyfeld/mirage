@@ -9,7 +9,6 @@ data:
   PORT: "4000"
   # Basic auth user; the password is generated into the Secret.
   TRELLIS_GATE_USER: "keeper"
-  # A second login the gate accepts, for testing by hand: a standard user with
-  # an easy password, plain here on purpose. The game has no real data yet.
+  # A second login the gate accepts, for testing by hand. Its password is
+  # generated into the Secret: mirage is mirrored publicly to GitHub.
   TRELLIS_TESTER_USER: "tester"
-  TRELLIS_TESTER_PASSWORD: "greenhouse"
