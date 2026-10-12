@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: aqueduct-postgres
+  namespace: haar
+spec:
+  serviceName: aqueduct-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      name: aqueduct-postgres
+  template:
+    metadata:
+      labels:
+        name: aqueduct-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          resources:
+            requests:
+              cpu: 25m
+              memory: 128Mi
+            limits:
+              memory: 768Mi
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: aqueduct-postgres-config
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aqueduct-env-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "aqueduct"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "aqueduct"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: aqueduct-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aqueduct-postgres
+  namespace: haar
+spec:
+  selector:
+    name: aqueduct-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

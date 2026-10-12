@@ -23,8 +23,11 @@ The mirage pipeline's `sync-secrets` step runs `sync.sh apply` on every push to
      WOODPECKER_HOST: "https://ouroboros.pinwheel.fan" # plain literal
    ```
 
-   A template referencing a key that cuneiform doesn't have fails that app
-   (its Secret is left as it was) instead of writing an empty or `null` value.
+   A template referencing a key that cuneiform doesn't have leaves that app's
+   Secret as it was (never an empty or `null` value) and reports it as
+   WAITING; it doesn't fail the run, so one missing hand-written value can't
+   block every other app's deploy. `namespace:` names the Secret's namespace
+   when it isn't `galaxy` (the agent side of petrichor lives in `haar`).
 
 ## Common tasks
 

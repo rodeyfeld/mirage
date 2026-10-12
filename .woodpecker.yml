@@ -22,12 +22,14 @@ steps:
     image: bitnami/kubectl
     commands:
       - echo "Applying app manifests (namespace-scoped only)..."
-      # Apply only namespace-scoped resources that CI has permission for
-      # Cluster-scoped resources (RBAC, PV, Ingress, ServiceAccounts) managed manually
+      # Apply only namespace-scoped resources that CI has permission for.
+      # Cluster-scoped resources (RBAC, PV, Ingress, ServiceAccounts, Namespaces,
+      # NetworkPolicies, quotas) are managed manually. Every manifest names its
+      # namespace (galaxy, or haar for the agent side), so none is passed here.
       - |
         for file in apps/*/deployment.yml apps/*/*-postgres.yml apps/*/service.yml apps/*/configmap.yml \
                     apps/*/statefulset.yml apps/*/*pvc.yml apps/*/job.yml; do
-          [ -f "$file" ] && kubectl apply -f "$file" -n galaxy
+          [ -f "$file" ] && kubectl apply -f "$file"
         done
       - echo "App manifests applied :)"
     when:

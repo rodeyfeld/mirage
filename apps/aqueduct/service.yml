@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aqueduct-service
+  namespace: haar
+spec:
+  selector:
+    name: aqueduct
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4100

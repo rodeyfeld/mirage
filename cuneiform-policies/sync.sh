@@ -25,6 +25,7 @@ NS=galaxy
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 failed=()
+waiting=()   # apps whose Secret waits on a value written by hand
 
 # ---- OpenBao HTTP API --------------------------------------------------------
 # bao METHOD PATH [JSON] -> body in $TMP/body, echoes the HTTP status.
@@ -90,7 +91,7 @@ else
     if [ "$have" = "$want" ]; then pstate=same; elif [ -z "$have" ]; then pstate=new; else pstate=changed; fi
 
     role_body="$(jq -nc --arg sa "$app" --arg p "$name" \
-      '{bound_service_account_names:[$sa], bound_service_account_namespaces:["galaxy"], policies:[$p], ttl:"24h"}')"
+      '{bound_service_account_names:[$sa], bound_service_account_namespaces:["galaxy","haar"], policies:[$p], ttl:"24h"}')"
     rstate=skipped
     if [ "$k8s_auth" = yes ] && can "$role_caps"; then
       if [ "$(bao GET "auth/kubernetes/role/$app")" = 200 ] &&
@@ -121,8 +122,9 @@ for spec in apps/*/secrets.yml; do
   yq -o=json '.' "$spec" > "$TMP/spec.json"
   path="$(jq -r '.path' "$TMP/spec.json")"
   secret="$(jq -r '.secret' "$TMP/spec.json")"
+  ns="$(jq -r '.namespace // "galaxy"' "$TMP/spec.json")"   # apps in other namespaces say so
   prefix="${path%/*}"
-  echo "  $app -> $secret ($path)"
+  echo "  $app -> $secret ($path, namespace $ns)"
 
   kv_read "$path"; found=$?
   [ "$found" = 2 ] && { failed+=("$app"); continue; }
@@ -167,12 +169,15 @@ for spec in apps/*/secrets.yml; do
     "$TMP/spec.json" > "$TMP/env.json"
   unresolved="$(jq -r '[.[] | scan("@@MISSING:([^@]+)@@") | .[0]] | unique | join(", ")' "$TMP/env.json")"
   if [ -n "$unresolved" ]; then
+    # A value someone still has to write by hand. The Secret is left as it
+    # was, and that app is reported, but it doesn't fail the run: one app's
+    # missing key must not block every other app's deploy.
     echo "    ! no value in cuneiform for: $unresolved — leaving $secret untouched"
-    failed+=("$app"); continue
+    waiting+=("$app"); continue
   fi
 
   # Diff against the live Secret by key name only.
-  kubectl get secret "$secret" -n "$NS" -o json 2>/dev/null | jq -c '.data // {}' > "$TMP/live.json" || echo '{}' > "$TMP/live.json"
+  kubectl get secret "$secret" -n "$ns" -o json 2>/dev/null | jq -c '.data // {}' > "$TMP/live.json" || echo '{}' > "$TMP/live.json"
   [ -s "$TMP/live.json" ] || echo '{}' > "$TMP/live.json"
   jq -r --slurpfile live "$TMP/live.json" '
     (map_values(@base64)) as $want | $live[0] as $have |
@@ -183,7 +188,7 @@ for spec in apps/*/secrets.yml; do
   ' "$TMP/env.json"
 
   if [ "$MODE" = apply ]; then
-    jq -c --arg n "$secret" --arg ns "$NS" \
+    jq -c --arg n "$secret" --arg ns "$ns" \
       '{apiVersion:"v1", kind:"Secret", type:"Opaque", metadata:{name:$n, namespace:$ns}, data:map_values(@base64)}' \
       "$TMP/env.json" | kubectl apply -f - >/dev/null || { echo "    ! kubectl apply $secret failed"; failed+=("$app"); }
     # Tell the restart step which apps need new pods to pick up their Secret
@@ -194,6 +199,7 @@ for spec in apps/*/secrets.yml; do
   fi
 done
 
+[ "${#waiting[@]}" -gt 0 ] && echo "WAITING on hand-written values: ${waiting[*]}"
 if [ "${#failed[@]}" -gt 0 ]; then
   echo "FAILED: ${failed[*]}"
   exit 1

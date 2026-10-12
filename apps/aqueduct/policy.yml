@@ -1,0 +1,94 @@
+# Applied by hand (the CI role covers workloads, not policy objects).
+#
+# aqueduct takes calls only from galaxy (cistern) and from haar itself (the
+# builder jobs), plus the node for its probes, and talks out only to DNS, its
+# own Postgres, and HTTPS on the public internet (the model API, schematics).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aqueduct
+  namespace: haar
+spec:
+  podSelector:
+    matchLabels:
+      name: aqueduct
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: galaxy
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: haar
+        # kubelet's probes come from the node's bridge address.
+        - ipBlock:
+            cidr: 10.42.0.1/32
+      ports:
+        - port: 4100
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              name: aqueduct-postgres
+      ports:
+        - port: 5432
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16]
+      ports:
+        - port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aqueduct-postgres
+  namespace: haar
+spec:
+  podSelector:
+    matchLabels:
+      name: aqueduct-postgres
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              name: aqueduct
+        - ipBlock:
+            cidr: 10.42.0.1/32
+      ports:
+        - port: 5432
+---
+# Runaway builders can't starve the game.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: haar
+  namespace: haar
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.memory: 4Gi
+    pods: "15"
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aqueduct
+  namespace: haar
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      name: aqueduct

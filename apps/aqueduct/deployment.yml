@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aqueduct
+  namespace: haar
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: aqueduct
+  template:
+    metadata:
+      labels:
+        name: aqueduct
+    spec:
+      serviceAccountName: aqueduct
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: aqueduct
+          image: schematics.pinwheel.fan/rodeyfeld/aqueduct
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4100
+          envFrom:
+            - configMapRef:
+                name: aqueduct-config
+            - secretRef:
+                name: aqueduct-env-secrets
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 4100
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 4100
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi

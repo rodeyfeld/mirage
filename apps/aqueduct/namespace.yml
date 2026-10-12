@@ -1,0 +1,10 @@
+# The agent side of petrichor: aqueduct (the model proxy), its Postgres, and
+# later the builder and sluice jobs. Its own namespace so the whole agent
+# side can be paused, quota'd or redeployed as one unit, apart from the game
+# in galaxy. Cluster-scoped and applied by hand, like the ingresses.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: haar
+  labels:
+    name: haar

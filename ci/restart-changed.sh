@@ -10,15 +10,17 @@ set -uo pipefail
 NS=galaxy
 cd "$(dirname "$0")/.."
 
-# kind/name of each Deployment and StatefulSet in an app's manifests
+# namespace kind/name of each Deployment and StatefulSet in an app's manifests
 workloads() {
-  awk '
-    /^---/                       { kind = ""; meta = 0 }
+  awk -v ns="$NS" '
+    /^---/                       { kind = ""; meta = 0; name = ""; space = ns }
     /^kind:/                     { kind = $2 }
     /^metadata:/                 { meta = 1; next }
-    /^[^ #]/                     { meta = 0 }
-    meta && /^  name:/           { if (kind == "Deployment" || kind == "StatefulSet") print tolower(kind) "/" $2; meta = 0 }
-  ' apps/"$1"/*.yml
+    /^[^ #]/                     { if (meta && name != "" && (kind == "Deployment" || kind == "StatefulSet")) print space " " tolower(kind) "/" name; meta = 0; name = "" }
+    meta && /^  name:/           { name = $2 }
+    meta && /^  namespace:/      { space = $2 }
+    END                          { if (meta && name != "" && (kind == "Deployment" || kind == "StatefulSet")) print space " " tolower(kind) "/" name }
+  ' apps/"$1"/*.yml | sort -u
 }
 
 if [ -z "${CI_PIPELINE_FILES:-}" ]; then
@@ -37,9 +39,9 @@ for app in $apps; do
     ouroboros) echo "skip ouroboros (would kill this pipeline); restart it by hand"; continue ;;
   esac
   [ -d "apps/$app" ] || continue
-  for w in $(workloads "$app"); do
-    echo "Restarting $w ($app)"
-    kubectl rollout restart -n "$NS" "$w" || echo "  ! $w not restarted (not deployed yet?)"
+  workloads "$app" | while read -r space w; do
+    echo "Restarting $w ($app, namespace $space)"
+    kubectl rollout restart -n "$space" "$w" || echo "  ! $w not restarted (not deployed yet?)"
   done
 done
 echo "Restart requests sent"

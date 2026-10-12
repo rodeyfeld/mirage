@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aqueduct-config
+  namespace: haar
+data:
+  PORT: "4100"
+  POOL_SIZE: "8"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aqueduct-postgres-config
+  namespace: haar
+data:
+  POSTGRES_USER: "aqueduct"
+  POSTGRES_DB: "aqueduct_prod"
+  PGDATA: "/var/lib/postgresql/data/pgdata"
