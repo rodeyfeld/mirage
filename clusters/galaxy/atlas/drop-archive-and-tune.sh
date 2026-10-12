@@ -30,8 +30,12 @@ if atlas -c "'select to_regclass(\$\$imagery_finder_archiveitem\$\$) is not null
   fi
   echo "  no reads in 30s"
 
-  read -r -p "  Drop it? This can't be undone. Type DROP: " answer
-  [ "$answer" = DROP ] || { echo "  not dropped"; exit 1; }
+  # Without a terminal (e.g. Claude Code's `!`), confirm with CONFIRM=DROP instead
+  answer=${CONFIRM:-}
+  if [ -z "$answer" ] && [ -t 0 ]; then
+    read -r -p "  Drop it? This can't be undone. Type DROP: " answer
+  fi
+  [ "$answer" = DROP ] || { echo "  not dropped (type DROP, or rerun with CONFIRM=DROP)"; exit 1; }
   atlas_sql <<'SQL'
 BEGIN;
 SET LOCAL lock_timeout = '5s';
