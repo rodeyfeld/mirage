@@ -17,7 +17,9 @@ ssh galaxy "mountpoint -q $vol && df -h $vol | tail -1" || {
 }
 
 echo "→ data directory on the volume"
-ssh galaxy "install -d -m 700 $vol/ephemeris && ls -ld $vol/ephemeris"
+# Owned by the image's postgres user (uid 999): the entrypoint drops to it before
+# initdb, and it has to be able to enter the directory
+ssh galaxy "install -d -m 700 -o 999 -g 0 $vol/ephemeris && ls -ld $vol/ephemeris"
 
 echo "→ cluster-scoped objects"
 apply cluster/scheduling/priority-classes.yml
