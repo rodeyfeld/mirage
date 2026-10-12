@@ -9,6 +9,8 @@ data:
   PORT: "4000"
   POOL_SIZE: "5"
   MYCELIA_BASIC_AUTH_USER: "rodeyfeld"
+  # The mycologist's LLM assessor, on the Claude API (ANTHROPIC_API_KEY).
+  MYCELIA_ASSESSOR: "on"
   # The orrery's collector (/map/orrery): kami's deploys API (Woodpecker
   # pipelines + rollouts) and noctis's Prefect API, both in-cluster.
   MYCELIA_ORRERY_KAMI_URL: "http://kami-service.galaxy.svc.cluster.local:8888"
