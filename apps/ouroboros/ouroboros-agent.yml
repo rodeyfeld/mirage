@@ -29,3 +29,12 @@ spec:
               value: "ouroboros-service:9000"
             - name: WOODPECKER_MAX_PROCS
               value: "2"
+          ports:
+            - containerPort: 3000
+          # The agent's built-in health server (WOODPECKER_HEALTHCHECK_ADDR, default :3000)
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 15

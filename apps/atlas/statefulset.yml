@@ -21,6 +21,11 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 5432
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "postgres"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: atlas-data

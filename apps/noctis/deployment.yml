@@ -18,6 +18,8 @@ spec:
         - name: noctis
           image: schematics.pinwheel.fan/rodeyfeld/noctis
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
           envFrom:
             - configMapRef:
                 name: noctis-config
@@ -30,3 +32,11 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+          # Prefect's runner webserver (PREFECT_RUNNER_SERVER_* in the configmap): /health
+          # fails when the runner stops polling for scheduled runs
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 15
