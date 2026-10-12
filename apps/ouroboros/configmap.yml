@@ -16,3 +16,9 @@ data:
   WOODPECKER_FORGEJO_URL: "https://schematics.pinwheel.fan"
   # v3 removed default privilege for docker-buildx; explicitly allow it
   WOODPECKER_PLUGINS_PRIVILEGED: "woodpeckerci/plugin-docker-buildx"
+  # Env added to every pipeline step. PLUGIN_MTU is docker-buildx's `mtu`
+  # setting for every repo's image build: Docker inside the build pod defaults
+  # to MTU 1500 on the 1450 flannel link, so CDNs that ignore path MTU discovery
+  # (hex.pm, deb.debian.org on Fastly) hang mid-download. A repo's own `mtu:`
+  # still wins.
+  WOODPECKER_ENVIRONMENT: "PLUGIN_MTU:1450"
