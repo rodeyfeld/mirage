@@ -1,0 +1,6 @@
+[Unit]
+Description=Pull galaxy backup to schematics
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/schematics-pull-galaxy-backup.sh
