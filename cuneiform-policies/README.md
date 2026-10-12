@@ -34,8 +34,9 @@ The mirage pipeline's `sync-secrets` step runs `sync.sh apply` on every push to
 - **Rotate a generated value:** delete the key in cuneiform
   (`bao kv patch -remove-data=<key> galaxy-kv/prod/<app>`), push.
 - **A value you choose** (third-party API key, a password you pick): it has to
-  be written once, by someone holding a Bao token, e.g. from the galaxy box:
-  `k3s kubectl -n galaxy exec -it cuneiform-0 -- sh -c 'BAO_ADDR=http://127.0.0.1:8200 bao login && bao kv patch galaxy-kv/prod/<app> <key>=<value>'`.
+  be written once, by someone holding a Bao token:
+  `./patch-key.sh <app> <key> [ENV_VAR]` (prompts for the token and the value,
+  or takes the value from `$ENV_VAR`, and sends both over ssh on stdin).
   Then reference it in `env:` and push.
 - **Read a value** (e.g. mycelia's basic-auth password):
   `bao kv get -field=basic_auth_password galaxy-kv/prod/mycelia`, or from the
