@@ -18,6 +18,12 @@ spec:
         - name: augur
           image: schematics.pinwheel.fan/rodeyfeld/augur
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
           ports:
             - containerPort: 8000
           envFrom:

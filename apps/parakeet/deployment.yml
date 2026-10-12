@@ -18,6 +18,12 @@ spec:
         - name: parakeet
           image: schematics.pinwheel.fan/rodeyfeld/parakeet
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
           ports:
             - containerPort: 4000
           envFrom:

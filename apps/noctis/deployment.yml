@@ -29,8 +29,9 @@ spec:
             requests:
               memory: "256Mi"
               cpu: "100m"
+            # Room for a study's 50,000-match cap held in memory
             limits:
-              memory: "512Mi"
+              memory: "1Gi"
               cpu: "500m"
           # Prefect's runner webserver (PREFECT_RUNNER_SERVER_* in the configmap): /health
           # fails when the runner stops polling for scheduled runs

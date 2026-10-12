@@ -28,6 +28,12 @@ spec:
         - name: server
           # v3+ has no `latest` tag — use semver; keep agent image in sync
           image: woodpeckerci/woodpecker-server:v3.13.0
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              memory: 512Mi
           ports:
             - containerPort: 8000
           envFrom:

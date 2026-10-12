@@ -1,0 +1,16 @@
+# Defaults for containers in galaxy that declare no resources: mostly ouroboros's
+# pipeline step pods, plus one-off Jobs. The 4Gi limit fits an Elixir or Vite image
+# build (two run at once at most) but stops a runaway step from taking the node.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: galaxy-defaults
+  namespace: galaxy
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 128Mi
+      default:
+        memory: 4Gi

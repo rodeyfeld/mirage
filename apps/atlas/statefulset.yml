@@ -15,6 +15,7 @@ spec:
         name: atlas
     spec:
       serviceAccountName: atlas
+      priorityClassName: galaxy-critical
       containers:
       - name: atlas
         # Pinned by digest: the atlas image is built on postgis/postgis:17-master, so a

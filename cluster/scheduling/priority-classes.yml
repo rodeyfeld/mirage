@@ -1,6 +1,19 @@
-# Pods without a priorityClassName run at 0. Expendable workloads (the rescrapeable
-# sentinel archive) sit below that, so under memory or disk pressure the kubelet evicts
-# them before anything else, and they never preempt another pod to get scheduled.
+# Pods without a priorityClassName run at 0. Under memory or disk pressure the kubelet
+# evicts pods using more than they requested first, and among those the lowest priority
+# first; the scheduler likewise preempts lower priorities to fit higher ones.
+#
+# galaxy-critical: data that can't be rebuilt (atlas, garage, doppler). cuneiform belongs
+# here too, but changing its spec restarts it and seals the vault, so it stays at 0.
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: galaxy-critical
+value: 1000
+globalDefault: false
+description: "Unrebuildable data; evicted last under node pressure."
+---
+# galaxy-expendable: rebuildable data (the rescrapeable sentinel archive). Evicted first,
+# and never preempts another pod to get scheduled.
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:

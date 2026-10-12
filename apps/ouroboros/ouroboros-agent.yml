@@ -19,6 +19,12 @@ spec:
       containers:
         - name: agent
           image: woodpeckerci/woodpecker-agent:v3.13.0
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 256Mi
           envFrom:
             - configMapRef:
                 name: ouroboros-config

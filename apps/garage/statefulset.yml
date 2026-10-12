@@ -17,6 +17,7 @@ spec:
         app: garage
     spec:
       serviceAccountName: garage
+      priorityClassName: galaxy-critical
       containers:
       - name: garage
         image: dxflrs/garage:v2.1.0

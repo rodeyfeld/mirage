@@ -19,6 +19,12 @@ spec:
       containers:
         - name: prefect-server
           image: prefecthq/prefect:3-latest
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
           command: ["prefect", "server", "start"]
           ports:
             - containerPort: 4200

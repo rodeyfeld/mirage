@@ -14,10 +14,17 @@ spec:
         name: doppler
     spec:
       serviceAccountName: doppler
+      priorityClassName: galaxy-critical
       containers:
         - name: doppler
           image: schematics.pinwheel.fan/rodeyfeld/doppler
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 512Mi
           ports:
             - containerPort: 1323
           envFrom:
