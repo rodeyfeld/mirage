@@ -10,3 +10,21 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 4000
+---
+# The mycelia pods by IP, for clustering them (DNS_CLUSTER_QUERY). Pods that
+# aren't ready yet are listed too: a new pod must find the old one to join it
+# before it's ready.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mycelia-headless
+  namespace: galaxy
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    name: mycelia
+  ports:
+    - name: epmd
+      protocol: TCP
+      port: 4369

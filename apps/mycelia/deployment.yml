@@ -33,6 +33,12 @@ spec:
               memory: 1536Mi
           ports:
             - containerPort: 4000
+          env:
+            # Names the node mycelia@<pod IP>, so the pods can cluster.
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           envFrom:
             - configMapRef:
                 name: mycelia-config

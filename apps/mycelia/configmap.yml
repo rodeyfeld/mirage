@@ -9,6 +9,8 @@ data:
   PORT: "4000"
   POOL_SIZE: "5"
   MYCELIA_BASIC_AUTH_USER: "rodeyfeld"
+  # The pods find each other here and cluster (mycelia-headless, service.yml).
+  DNS_CLUSTER_QUERY: "mycelia-headless.galaxy.svc.cluster.local"
   # The mycologist's LLM assessor: Claude Haiku through Claude Code, on the
   # Claude subscription in CLAUDE_CODE_OAUTH_TOKEN.
   MYCELIA_ASSESSOR: "on"
