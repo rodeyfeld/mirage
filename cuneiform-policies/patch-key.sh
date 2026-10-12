@@ -12,7 +12,7 @@
 # e.g. patch-key.sh mycelia claude_code_oauth_token CLAUDE_CODE_OAUTH_TOKEN
 set -euo pipefail
 
-[ $# -ge 2 ] || { sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+[ $# -ge 2 ] || { sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 app="$1" key="$2" from="${3:-}"
 
 [[ "$app" =~ ^[a-z0-9-]+$ && "$key" =~ ^[a-z0-9_]+$ ]] ||
