@@ -5,6 +5,12 @@ metadata:
   namespace: galaxy
 spec:
   replicas: 1
+  # Never two at once: each mycelia runs a tree per spore and talks to its pod,
+  # so an overlapping rollout has two owners racing over the same spores (one
+  # deletes a spore, the other provisions it again with an empty home; both
+  # write its messages).
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       name: mycelia
