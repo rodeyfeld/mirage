@@ -25,6 +25,13 @@ data:
   ATLAS_DB_PORT: "5432"
   ATLAS_DB_NAME: "augur"
   ATLAS_DB_USER: "postgres"
+
+  # Sentinel archive (imagery_finder_archiveitem): sentinel-sync/backfill write here,
+  # the study flow matches here and writes results to Atlas
+  EPHEMERIS_DB_HOST: "ephemeris-service.galaxy.svc.cluster.local"
+  EPHEMERIS_DB_PORT: "5432"
+  EPHEMERIS_DB_NAME: "ephemeris"
+  EPHEMERIS_DB_USER: "postgres"
   
   # Augur API
   NOCTIS_AUGUR_API_URL: "http://augur-service.galaxy.svc.cluster.local:8000"

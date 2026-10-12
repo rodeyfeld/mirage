@@ -20,6 +20,13 @@ data:
   AUGUR_DB_PORT: "5432"
   AUGUR_DB_NAME: "augur"
   AUGUR_DB_USER: "postgres"
+
+  # Sentinel archive (ArchiveItem) lives in ephemeris; migrate it with
+  # `manage.py migrate --database=archive` (augur-db-migrate.yml runs both)
+  AUGUR_ARCHIVE_DB_HOST: "ephemeris-service.galaxy.svc.cluster.local"
+  AUGUR_ARCHIVE_DB_PORT: "5432"
+  AUGUR_ARCHIVE_DB_NAME: "ephemeris"
+  AUGUR_ARCHIVE_DB_USER: "postgres"
   
   # Noctis/Prefect integration (replaces Dreamflow/Airflow)
   NOCTIS_URL: "http://noctis-prefect-service.galaxy.svc.cluster.local:4200"

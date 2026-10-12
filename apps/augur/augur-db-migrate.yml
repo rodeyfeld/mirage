@@ -10,7 +10,11 @@ spec:
         - name: augur-db-migrate
           image: schematics.pinwheel.fan/rodeyfeld/augur
           imagePullPolicy: Always
-          command: ["python", "manage.py", "migrate", "--noinput"]
+          # augur's own tables in atlas, then the archive table in ephemeris
+          command:
+            - sh
+            - -c
+            - python manage.py migrate --noinput && python manage.py migrate --database=archive --noinput
           envFrom:
             - configMapRef:
                 name: augur-config
