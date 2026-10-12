@@ -1,0 +1,12 @@
+# /etc/rancher/k3s/config.yaml on the galaxy box. Kubelet guardrails so no single
+# workload can fill the disk or exhaust memory for everything else.
+kubelet-arg:
+  # Clear unused images long before the disk fills (defaults are 85/80)
+  - "image-gc-high-threshold=70"
+  - "image-gc-low-threshold=50"
+  # Evict pods before memory or disk run out; the inode limits restate the defaults,
+  # which setting eviction-hard would otherwise drop
+  - "eviction-hard=memory.available<500Mi,nodefs.available<10%,nodefs.inodesFree<5%,imagefs.available<10%,imagefs.inodesFree<5%"
+  # Hold back room for the OS and k3s itself from what pods can be scheduled into
+  - "system-reserved=cpu=250m,memory=1Gi"
+  - "kube-reserved=cpu=250m,memory=512Mi"
