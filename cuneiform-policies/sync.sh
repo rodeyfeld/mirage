@@ -183,6 +183,11 @@ for spec in apps/*/secrets.yml; do
     jq -c --arg n "$secret" --arg ns "$NS" \
       '{apiVersion:"v1", kind:"Secret", type:"Opaque", metadata:{name:$n, namespace:$ns}, data:map_values(@base64)}' \
       "$TMP/env.json" | kubectl apply -f - >/dev/null || { echo "    ! kubectl apply $secret failed"; failed+=("$app"); }
+    # Tell the restart step which apps need new pods to pick up their Secret
+    if [ -n "${CHANGED_SECRETS_FILE:-}" ] &&
+       ! jq -e --slurpfile live "$TMP/live.json" 'map_values(@base64) == $live[0]' "$TMP/env.json" >/dev/null; then
+      echo "$app" >> "$CHANGED_SECRETS_FILE"
+    fi
   fi
 done
 

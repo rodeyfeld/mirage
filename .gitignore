@@ -3,3 +3,4 @@
 !.env.example
 *.swp
 *.DS_Store
+.changed-secrets

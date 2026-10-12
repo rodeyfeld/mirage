@@ -1,0 +1,105 @@
+# ephemeris: the sentinel archive (imagery_finder_archiveitem), split out of atlas so a
+# runaway scrape or query can't take augur, doppler or anything else down with it.
+# Everything in it is rescrapeable by noctis, so it is not backed up and runs at the
+# lowest priority, with hard memory/CPU limits and its own volume.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ephemeris
+  namespace: galaxy
+spec:
+  serviceName: ephemeris-service
+  replicas: 1
+  # OnDelete: pod is only replaced after manual deletion, guaranteeing the old
+  # pod fully releases the RWO PVC before the new one mounts it.
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      name: ephemeris
+  template:
+    metadata:
+      labels:
+        name: ephemeris
+    spec:
+      serviceAccountName: ephemeris
+      priorityClassName: galaxy-expendable
+      containers:
+        - name: postgres
+          image: postgis/postgis:17-3.5
+          # Sized for the 2Gi limit. temp_file_limit caps what one query can spill to
+          # disk; the timeouts stop a stuck client from holding locks indefinitely.
+          args:
+            - -c
+            - shared_buffers=512MB
+            - -c
+            - effective_cache_size=1GB
+            - -c
+            - work_mem=16MB
+            - -c
+            - maintenance_work_mem=256MB
+            - -c
+            - max_connections=40
+            - -c
+            - max_wal_size=2GB
+            - -c
+            - random_page_cost=1.5
+            - -c
+            - effective_io_concurrency=100
+            - -c
+            - temp_file_limit=4GB
+            - -c
+            - idle_in_transaction_session_timeout=10min
+            - -c
+            - log_min_duration_statement=5s
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: ephemeris-config
+            - secretRef:
+                name: ephemeris-env-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 768Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: ephemeris-data
+              mountPath: /var/lib/postgresql/data
+            # The 64Mi default /dev/shm is too small for parallel queries
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: ephemeris-data
+          persistentVolumeClaim:
+            claimName: ephemeris-volume-claim
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ephemeris-service
+  namespace: galaxy
+spec:
+  selector:
+    name: ephemeris
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

@@ -1,0 +1,23 @@
+# On Hetzner volume volume-ash-1 (50G), not the root disk, so the archive can only ever
+# fill its own volume. `type: Directory` means the pod won't start if the volume isn't
+# mounted, instead of quietly writing to the empty mountpoint on the root disk.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ephemeris-volume
+  labels:
+    name: ephemeris-volume
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 48Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/HC_Volume_107107523/ephemeris
+    type: Directory
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: galaxy
+    name: ephemeris-volume-claim

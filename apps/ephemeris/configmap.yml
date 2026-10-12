@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ephemeris-config
+  namespace: galaxy
+data:
+  # The postgis image creates the postgis extension in POSTGRES_DB on first start
+  POSTGRES_DB: "ephemeris"
+  POSTGRES_USER: "postgres"
+  PGDATA: "/var/lib/postgresql/data/pgdata"

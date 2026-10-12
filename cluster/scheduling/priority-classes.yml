@@ -1,0 +1,11 @@
+# Pods without a priorityClassName run at 0. Expendable workloads (the rescrapeable
+# sentinel archive) sit below that, so under memory or disk pressure the kubelet evicts
+# them before anything else, and they never preempt another pod to get scheduled.
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: galaxy-expendable
+value: -100
+preemptionPolicy: Never
+globalDefault: false
+description: "Rebuildable data; evicted first under node pressure."

@@ -9,6 +9,8 @@ steps:
       BAO_ADDR: http://cuneiform-service.galaxy.svc.cluster.local:8200
       BAO_TOKEN:
         from_secret: cuneiform_token
+      # Apps whose Secret changed, for restart-changed below
+      CHANGED_SECRETS_FILE: .changed-secrets
     commands:
       - curl -fsSL -o /tmp/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 && chmod +x /tmp/yq
       - PATH="/tmp:$PATH" cuneiform-policies/sync.sh apply
@@ -32,25 +34,14 @@ steps:
       - event: [push, manual]
         branch: main
 
-  restart-deployments:
+  restart-changed:
     image: bitnami/kubectl
+    environment:
+      CHANGED_SECRETS_FILE: .changed-secrets
     commands:
-      - echo "Restarting all resources (excluding cuneiform)..."
-      # StatefulSets with RWO PVCs: restart sequentially so only one rolling
-      # operation touches a given SS at a time. Do NOT block the pipeline on
-      # rollout status — if a pod is CrashLoopBackOff, `rollout status` would
-      # wait until --timeout every run and look "stuck"; CI only needs to
-      # trigger restarts, not prove every workload is healthy.
-      - |
-        set +e
-        for ss in $(kubectl get statefulset -n galaxy -o name 2>/dev/null | grep -v cuneiform); do
-          echo "Restarting $ss..."
-          kubectl rollout restart -n galaxy "$ss"
-        done
-      - |
-        # Exclude ouroboros — restarting the agent kills the running pipeline step
-        kubectl get deployment -n galaxy -o name | grep -v ouroboros | xargs -r kubectl rollout restart -n galaxy
-      - echo "All restart requests sent"
+      # Only the apps this push touched (files under apps/<app>/ or a changed Secret);
+      # a manual run restarts everything. See the script for what's never restarted.
+      - ci/restart-changed.sh
     when:
       - event: [push, manual]
         branch: main
