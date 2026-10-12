@@ -11,7 +11,10 @@ metadata:
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/warn: restricted
 ---
-# galaxy is one fixed-size box: bound what spores can take from it.
+# galaxy is one fixed-size box: bound what spores can take from it. Each pod is
+# limited to 2 CPUs and 3Gi (mycelia's Host.Kube): 1536Mi got every spore
+# OOM-killed compiling and testing mycelia. Limits overcommit the node; spores
+# are the expendable ones if it runs short.
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -20,7 +23,7 @@ metadata:
 spec:
   hard:
     pods: "4"
-    limits.cpu: "4"
-    limits.memory: 6Gi
+    limits.cpu: "8"
+    limits.memory: 12Gi
     requests.memory: 2Gi
     persistentvolumeclaims: "24"
