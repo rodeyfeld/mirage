@@ -1,0 +1,23 @@
+# A sporocarp is reached by mycelia (which proxies it for the owner) and by the
+# spores (which test against it), and reaches nothing at all: no internet, no
+# cluster, not even DNS. Whatever it needs runs inside its own pod, on test data.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sporocarps
+  namespace: sporocarps
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: galaxy
+          podSelector:
+            matchLabels:
+              name: mycelia
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: spores
+  egress: []

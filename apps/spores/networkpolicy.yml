@@ -1,8 +1,8 @@
 # Only mycelia talks to a spore (its bridge on 8080). A spore can reach mycelia
 # (its hooks report there, so it shows on the activity graph) and the internet
-# (Anthropic, schematics, GitHub, package registries), but nothing else in the
-# cluster: no other pods or services (10.0.0.0/8 covers k3s's 10.42/10.43), no
-# private ranges, no cloud metadata, and not the node itself.
+# (Anthropic, schematics, GitHub, package registries) and the sporocarps, but
+# nothing else in the cluster: no other pods or services (10.0.0.0/8 covers
+# k3s's 10.42/10.43), no private ranges, no cloud metadata, and not the node.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -33,6 +33,11 @@ spec:
       ports:
         - port: 4000
           protocol: TCP
+    # The sporocarps mycelia runs for the spores to test against (apps/sporocarps).
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: sporocarps
     - to:
         - namespaceSelector:
             matchLabels:

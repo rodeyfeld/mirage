@@ -1,0 +1,29 @@
+# Sporocarps: short-lived copies of a project on test data, which mycelia runs
+# for a spore that needs to check a change end to end (e.g. doppler, built from
+# the spore's spore/* branch by that repo's CI). Created and deleted by mycelia,
+# which expires each after an hour and when its spore goes idle. No secrets, no
+# real data, and no network out (networkpolicy.yml). Applied by hand:
+#   kubectl apply -f apps/sporocarps/
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sporocarps
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+# Small on purpose: a sporocarp is a demo, not a second galaxy.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: sporocarps
+  namespace: sporocarps
+spec:
+  hard:
+    pods: "3"
+    limits.cpu: "3"
+    limits.memory: 2Gi
+    requests.memory: 512Mi
+    persistentvolumeclaims: "0"
+    services: "0"
+    secrets: "0"
