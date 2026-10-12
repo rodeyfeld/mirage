@@ -5,12 +5,15 @@ metadata:
   namespace: galaxy
 spec:
   replicas: 1
-  # Never two at once: each mycelia runs a tree per spore and talks to its pod,
-  # so an overlapping rollout has two owners racing over the same spores (one
-  # deletes a spore, the other provisions it again with an empty home; both
-  # write its messages).
+  # Roll: the new pod joins the old one's cluster (POD_IP, mycelia-headless)
+  # and takes traffic once it's ready; only then does the old one stop, handing
+  # its spores over. Each spore's tree still runs on one pod at a time
+  # (Mycelia.Cluster in mycelia), so the two never race over a spore.
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       name: mycelia
@@ -52,8 +55,7 @@ spec:
               port: 4000
             initialDelaySeconds: 30
             periodSeconds: 10
-          # Recreate leaves no pod serving until this passes: probe every second
-          # so the new one takes traffic as soon as it's up.
+          # Probe every second, so a rollout moves on as soon as the new pod is up.
           readinessProbe:
             httpGet:
               path: /health
