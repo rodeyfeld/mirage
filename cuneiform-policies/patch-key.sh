@@ -30,5 +30,7 @@ token="${BAO_TOKEN:-}"
 [ -n "$token" ] || { echo "empty Bao token" >&2; exit 1; }
 
 # First line is the Bao token; the rest is the value, read by `bao kv patch`'s `=-`.
+# Then renew the token: Claude's (claude-token.sh) lapses after 30 unused days;
+# a token that can't renew (root) just skips it.
 printf '%s\n%s' "$token" "$value" |
-  ssh -T galaxy "k3s kubectl -n galaxy exec -i cuneiform-0 -- sh -c 'read -r t; BAO_ADDR=http://127.0.0.1:8200 BAO_TOKEN=\$t bao kv patch galaxy-kv/prod/$app $key=-'"
+  ssh -T galaxy "k3s kubectl -n galaxy exec -i cuneiform-0 -- sh -c 'read -r t; export BAO_ADDR=http://127.0.0.1:8200 BAO_TOKEN=\$t; bao kv patch galaxy-kv/prod/$app $key=- && { bao token renew >/dev/null 2>&1 || true; }'"

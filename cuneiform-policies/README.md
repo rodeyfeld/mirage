@@ -38,6 +38,12 @@ The mirage pipeline's `sync-secrets` step runs `sync.sh apply` on every push to
   `./patch-key.sh <app> <key> [ENV_VAR]` (prompts for the token and the value,
   or takes the value from `$ENV_VAR`, and sends both over ssh on stdin).
   Then reference it in `env:` and push.
+- **Claude's token:** `./claude-token.sh` (run once, with an admin token) writes
+  the `claude-writer` policy (`claude-writer.hcl`: create/update/patch under
+  `galaxy-kv/data/prod/*`, no read) and saves a periodic 30-day token to
+  `~/.config/cuneiform/env`. Claude runs `patch-key.sh` with it, which renews it
+  on each use. Revoke it with `bao token revoke -accessor <accessor>` (find it
+  with `bao list auth/token/accessors`).
 - **Read a value** (e.g. mycelia's basic-auth password):
   `bao kv get -field=basic_auth_password galaxy-kv/prod/mycelia`, or from the
   live Secret: `k3s kubectl -n galaxy get secret mycelia-env-secrets -o jsonpath='{.data.MYCELIA_BASIC_AUTH_PASSWORD}' | base64 -d`.
