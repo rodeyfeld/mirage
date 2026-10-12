@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pothos
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: pothos
+  template:
+    metadata:
+      labels:
+        name: pothos
+    spec:
+      containers:
+        - name: pothos
+          image: schematics.pinwheel.fan/rodeyfeld/pothos
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: pothos-config
+            - secretRef:
+                name: pothos-env-secrets
+          # The release migrates the pothos database on atlas at start (bin/server),
+          # then loads the content. /readyz is 503 until the content is loaded and
+          # the database answers.
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 4000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 768Mi

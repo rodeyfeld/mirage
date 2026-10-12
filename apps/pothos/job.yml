@@ -1,0 +1,50 @@
+# The pothos role and database on atlas, made or mended from the generated secret: creates
+# the role if it's missing, sets its password to the current `db_password` either way, and
+# creates the database if it's missing. The pod crash-looped on `invalid_password` when the
+# role's password and the secret's drifted apart; this keeps them equal.
+#
+# Applied by the pipeline (apps/*/job.yml). A Job's template is immutable, so a re-run after
+# the first needs the old one gone first:
+#   k3s kubectl -n galaxy delete job pothos-db-ensure
+# then a push or a manual pipeline run.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pothos-db-ensure
+  namespace: galaxy
+spec:
+  template:
+    spec:
+      containers:
+        - name: psql
+          # atlas's own image: the same psql as the server.
+          image: schematics.pinwheel.fan/rodeyfeld/atlas@sha256:368c8f6546d4b01d306431467659d50decd57ade882661088b6d59fbe72f0695
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              export PGPASSWORD="$POSTGRES_PASSWORD"
+              psql -v ON_ERROR_STOP=1 -h atlas-service.galaxy.svc.cluster.local -U postgres -d postgres \
+                -v pw="$POTHOS_DB_PASSWORD" <<'SQL'
+              SELECT format('CREATE ROLE pothos LOGIN PASSWORD %L', :'pw')
+                WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'pothos') \gexec
+              ALTER ROLE pothos WITH LOGIN PASSWORD :'pw';
+              SELECT 'CREATE DATABASE pothos OWNER pothos'
+                WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'pothos') \gexec
+              SQL
+              echo "pothos role and database are as the secret says"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: atlas-env-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POTHOS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pothos-env-secrets
+                  key: POTHOS_DB_PASSWORD
+      restartPolicy: OnFailure
+  backoffLimit: 3

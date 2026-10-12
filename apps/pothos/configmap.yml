@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pothos-config
+  namespace: galaxy
+data:
+  PHX_SERVER: "true"
+  PHX_HOST: "pothos.pinwheel.fan"
+  PORT: "4000"
+  # Basic auth user; the password is generated into the Secret.
+  TRELLIS_GATE_USER: "keeper"
+  # A second login the gate accepts, for testing by hand: a standard user with
+  # an easy password, plain here on purpose. The game has no real data yet.
+  TRELLIS_TESTER_USER: "tester"
+  TRELLIS_TESTER_PASSWORD: "greenhouse"
