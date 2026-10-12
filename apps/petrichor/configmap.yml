@@ -11,3 +11,5 @@ data:
   # Needs SLUICE_FORGE_TOKEN (see secrets.yml); without it only Hollin is open.
   CISTERN_WORLDS: "moss_hollow=https://schematics.pinwheel.fan/petrichor-worlds/moss_hollow.git"
   CISTERN_FORGE_USER: "rodeyfeld"
+  # Basic auth user; the password is generated into the Secret.
+  CISTERN_GATE_USER: "dowser"
