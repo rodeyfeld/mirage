@@ -21,7 +21,11 @@ data:
   FORGEJO__security__INSTALL_LOCK: "true"
   FORGEJO__service__DISABLE_REGISTRATION: "true"
   FORGEJO__service__REQUIRE_SIGNIN_VIEW: "true"
+  # Everything made here is private (owner, 2026-10-12): a new repo is private
+  # whatever its creator asks for, and so is a new org.
   FORGEJO__repository__DEFAULT_PRIVATE: "private"
+  FORGEJO__repository__FORCE_PRIVATE: "true"
+  FORGEJO__service__DEFAULT_ORG_VISIBILITY: "private"
   FORGEJO__packages__ENABLED: "true"
   # CI stays on ouroboros (Woodpecker)
   FORGEJO__actions__ENABLED: "false"
