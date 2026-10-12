@@ -38,6 +38,13 @@ The mirage pipeline's `sync-secrets` step runs `sync.sh apply` on every push to
   `./patch-key.sh <app> <key> [ENV_VAR]` (prompts for the token and the value,
   or takes the value from `$ENV_VAR`, and sends both over ssh on stdin).
   Then reference it in `env:` and push.
+- **Everyday admin login (instead of root):** `./operator-setup.sh` (once, with
+  the root token) enables userpass, writes the `operator` policy
+  (`operator.hcl`: KV, policies, k8s roles, users, tokens; no seal, rekey or
+  generate-root) and creates the user `rodeyfeld`. Then `./bao.sh login` caches
+  a 12h token in `~/.config/cuneiform/session`, and `./bao.sh <bao args>` runs
+  bao in the pod with it (e.g. `./bao.sh kv list galaxy-kv/prod`).
+  `patch-key.sh` uses the same session. Rerun the setup to change the password.
 - **Claude's token:** `./claude-token.sh` (run once, with an admin token) writes
   the `claude-writer` policy (`claude-writer.hcl`: create/update/patch under
   `galaxy-kv/data/prod/*`, no read) and saves a periodic 30-day token to

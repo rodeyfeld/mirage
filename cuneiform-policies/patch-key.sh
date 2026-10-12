@@ -5,8 +5,9 @@
 #   patch-key.sh <app> <key> [ENV_VAR]
 #
 # The value comes from $ENV_VAR when it's named and set, else a hidden prompt.
-# The Bao token comes from $BAO_TOKEN, else a hidden prompt. Both travel over
-# ssh on stdin, so neither lands on a command line or in shell history.
+# The Bao token comes from $BAO_TOKEN, else the `bao.sh login` session, else a
+# hidden prompt. Both travel over ssh on stdin, so neither lands on a command
+# line or in shell history.
 #
 # e.g. patch-key.sh mycelia claude_code_oauth_token CLAUDE_CODE_OAUTH_TOKEN
 set -euo pipefail
@@ -26,6 +27,10 @@ fi
 [ -n "$value" ] || { echo "empty value" >&2; exit 1; }
 
 token="${BAO_TOKEN:-}"
+session="$HOME/.config/cuneiform/session"
+if [ -z "$token" ] && [ -r "$session" ]; then
+  token="$(sed -n 's/^BAO_TOKEN=//p' "$session")"
+fi
 [ -n "$token" ] || { read -rsp "Bao token: " token; echo; }
 [ -n "$token" ] || { echo "empty Bao token" >&2; exit 1; }
 
