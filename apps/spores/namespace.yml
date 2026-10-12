@@ -1,0 +1,26 @@
+# Spores: one pod per mycelia spore (a Claude Code session prompted from
+# mycelia.pinwheel.fan/spores), created and deleted by mycelia itself. The
+# namespace is the sandbox: restricted pod security, a quota, and a network
+# policy that keeps the pods out of the cluster. Applied by hand:
+#   kubectl apply -f apps/spores/
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spores
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+# galaxy is one fixed-size box: bound what spores can take from it.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: spores
+  namespace: spores
+spec:
+  hard:
+    pods: "4"
+    limits.cpu: "4"
+    limits.memory: 6Gi
+    requests.memory: 2Gi
+    persistentvolumeclaims: "24"

@@ -9,8 +9,14 @@ data:
   PORT: "4000"
   POOL_SIZE: "5"
   MYCELIA_BASIC_AUTH_USER: "rodeyfeld"
-  # The mycologist's LLM assessor, on the Claude API (ANTHROPIC_API_KEY).
+  # The mycologist's LLM assessor: Claude Haiku through Claude Code, on the
+  # Claude subscription in CLAUDE_CODE_OAUTH_TOKEN.
   MYCELIA_ASSESSOR: "on"
+  # Spores (/spores): a pod per spore in the `spores` namespace (apps/spores),
+  # running Claude Code on the same subscription.
+  MYCELIA_SPORES_HOST: "kube"
+  MYCELIA_SPORES_NAMESPACE: "spores"
+  MYCELIA_SPORES_IMAGE: "schematics.pinwheel.fan/rodeyfeld/spore:latest"
   # The orrery's collector (/map/orrery): kami's deploys API (Woodpecker
   # pipelines + rollouts) and noctis's Prefect API, both in-cluster.
   MYCELIA_ORRERY_KAMI_URL: "http://kami-service.galaxy.svc.cluster.local:8888"

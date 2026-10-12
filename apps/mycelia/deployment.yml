@@ -23,7 +23,8 @@ spec:
               cpu: 50m
               memory: 256Mi
             limits:
-              memory: 1Gi
+              # The mycologist runs `claude -p` (Claude Code) beside the app.
+              memory: 1536Mi
           ports:
             - containerPort: 4000
           envFrom:
