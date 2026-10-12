@@ -30,8 +30,11 @@ failed=()
 # bao METHOD PATH [JSON] -> body in $TMP/body, echoes the HTTP status.
 bao() {
   local args=(-sS -o "$TMP/body" -w '%{http_code}' -X "$1" -H "X-Vault-Token: $BAO_TOKEN")
-  [ -n "${3:-}" ] && args+=(-H 'content-type: application/json' --data-binary "$3")
-  [ "$1" = PATCH ] && args+=(-H 'content-type: application/merge-patch+json')
+  # KV v2 PATCH (adding keys to an existing path) is a JSON merge patch; any
+  # other content type, or a second content-type header, gets a 415.
+  local ctype='content-type: application/json'
+  [ "$1" = PATCH ] && ctype='content-type: application/merge-patch+json'
+  [ -n "${3:-}" ] && args+=(-H "$ctype" --data-binary "$3")
   curl "${args[@]}" "$BAO_ADDR/v1/$2" || echo 000
 }
 
