@@ -63,8 +63,8 @@ spec:
 ---
 # The mycologist's spore (mycologist.yml) also reaches the Kubernetes API, as the
 # kubernetes service (10.43.0.1:443) and as the server it forwards to (galaxy
-# itself, :6443), and kami (its pod's 8080), for the galaxy's deploys. Policies add up: this is on
-# top of the one above.
+# itself, :6443), kami (its pod's 8080) for the galaxy's deploys, and Woodpecker
+# through traefik. Policies add up: this is on top of the one above.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -97,4 +97,22 @@ spec:
               name: kami
       ports:
         - port: 8080
+          protocol: TCP
+    # Woodpecker, as https://ouroboros.pinwheel.fan: galaxy's :443, which
+    # kube-proxy forwards to traefik's websecure port. Only what's public anyway.
+    - to:
+        - ipBlock:
+            cidr: 5.161.236.179/32 # galaxy itself
+      ports:
+        - port: 443
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - port: 8443
           protocol: TCP
