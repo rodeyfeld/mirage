@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: petrichor-config
+  namespace: galaxy
+data:
+  PHX_SERVER: "true"
+  PHX_HOST: "petrichor.pinwheel.fan"
+  PORT: "4000"
+  # Worlds to clone from schematics and open at boot, besides the river's own.
+  # Needs SLUICE_FORGE_TOKEN (see secrets.yml); without it only Hollin is open.
+  CISTERN_WORLDS: "moss_hollow=https://schematics.pinwheel.fan/petrichor-worlds/moss_hollow.git"
+  CISTERN_FORGE_USER: "rodeyfeld"

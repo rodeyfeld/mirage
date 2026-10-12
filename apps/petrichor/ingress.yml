@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: petrichor-ingress
+  namespace: galaxy
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: galaxy-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: petrichor.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: petrichor-service
+                port:
+                  number: 80
+  tls:
+    - secretName: petrichor-tls
+      hosts:
+        - petrichor.pinwheel.fan

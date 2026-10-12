@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petrichor
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: petrichor
+  template:
+    metadata:
+      labels:
+        name: petrichor
+    spec:
+      serviceAccountName: petrichor
+      containers:
+        - name: petrichor
+          image: schematics.pinwheel.fan/rodeyfeld/petrichor
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: petrichor-config
+            - secretRef:
+                name: petrichor-env-secrets
+          # Boot clones and compiles the worlds named in CISTERN_WORLDS, so
+          # readiness takes a minute the first time. /readyz is 503 until the
+          # engine is loaded and at least one world is open.
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 4000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: worlds
+              mountPath: /app/worlds
+      volumes:
+        - name: worlds
+          emptyDir: {}
