@@ -13,7 +13,8 @@ metadata:
 ---
 # galaxy is one fixed-size box: bound what spores can take from it. Each pod is
 # limited to 2 CPUs and 3Gi (mycelia's Host.Kube): 1536Mi got every spore
-# OOM-killed compiling and testing mycelia. Limits overcommit the node; spores
+# OOM-killed compiling and testing mycelia. Five pods: the mycologist's, which
+# is always up, and four for the owner's spores. Limits overcommit the node; spores
 # are the expendable ones if it runs short.
 apiVersion: v1
 kind: ResourceQuota
@@ -22,8 +23,8 @@ metadata:
   namespace: spores
 spec:
   hard:
-    pods: "4"
-    limits.cpu: "8"
-    limits.memory: 12Gi
-    requests.memory: 2Gi
+    pods: "5"
+    limits.cpu: "10"
+    limits.memory: 15Gi
+    requests.memory: 2560Mi
     persistentvolumeclaims: "24"

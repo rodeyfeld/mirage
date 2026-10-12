@@ -60,3 +60,41 @@ spec:
               - 100.64.0.0/10
               - 169.254.0.0/16
               - 5.161.236.179/32 # galaxy itself
+---
+# The mycologist's spore (mycologist.yml) also reaches the Kubernetes API, as the
+# kubernetes service (10.43.0.1:443) and as the server it forwards to (galaxy
+# itself, :6443), and kami (its pod's 8080), for the galaxy's deploys. Policies add up: this is on
+# top of the one above.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spores-mycologist
+  namespace: spores
+spec:
+  podSelector:
+    matchLabels:
+      mycelia.pinwheel.fan/role: mycologist
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.43.0.1/32
+      ports:
+        - port: 443
+          protocol: TCP
+    - to:
+        - ipBlock:
+            cidr: 5.161.236.179/32 # galaxy itself
+      ports:
+        - port: 6443
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: galaxy
+          podSelector:
+            matchLabels:
+              name: kami
+      ports:
+        - port: 8080
+          protocol: TCP

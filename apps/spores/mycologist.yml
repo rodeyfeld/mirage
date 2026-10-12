@@ -1,0 +1,95 @@
+# The mycologist's spore (mycelia's own, always on; Mycelia.Mycologist.Summons)
+# runs as this service account, with its token mounted. It fixes failed deploys
+# and stuck rollouts, so it reads the whole cluster (not secrets) and can restart
+# galaxy's workloads. It can't create workloads, read secrets or change RBAC:
+# real changes go through mirage, by a push. Applied by hand:
+#   kubectl apply -f apps/spores/
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mycologist
+  namespace: spores
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mycologist-read
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - pods/log
+      - events
+      - services
+      - endpoints
+      - configmaps
+      - persistentvolumeclaims
+      - persistentvolumes
+      - namespaces
+      - nodes
+      - resourcequotas
+      - serviceaccounts
+    verbs: [get, list, watch]
+  - apiGroups: [apps]
+    resources: [deployments, statefulsets, daemonsets, replicasets]
+    verbs: [get, list, watch]
+  - apiGroups: [batch]
+    resources: [jobs, cronjobs]
+    verbs: [get, list, watch]
+  - apiGroups: [networking.k8s.io]
+    resources: [ingresses, networkpolicies]
+    verbs: [get, list, watch]
+  - apiGroups: [events.k8s.io]
+    resources: [events]
+    verbs: [get, list, watch]
+  - apiGroups: [metrics.k8s.io]
+    resources: [pods, nodes]
+    verbs: [get, list]
+  - apiGroups: [rbac.authorization.k8s.io]
+    resources: [roles, rolebindings, clusterroles, clusterrolebindings]
+    verbs: [get, list, watch]
+  - apiGroups: [traefik.io, cert-manager.io]
+    resources: ["*"]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mycologist-read
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mycologist-read
+---
+# In galaxy: restart a workload (`kubectl rollout restart` patches its pod
+# template) and delete a wedged pod.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mycologist-operate
+  namespace: galaxy
+rules:
+  - apiGroups: [apps]
+    resources: [deployments, statefulsets, daemonsets]
+    verbs: [patch]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-operate
+  namespace: galaxy
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mycologist-operate
