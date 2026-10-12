@@ -25,7 +25,8 @@ spec:
                 name: petrichor-config
             - secretRef:
                 name: petrichor-env-secrets
-          # Boot clones and compiles the worlds named in CISTERN_WORLDS, so
+          # The release migrates the petrichor database on atlas, then boot
+          # clones and compiles the worlds named in CISTERN_WORLDS, so
           # readiness takes a minute the first time. /readyz is 503 until the
           # engine is loaded and at least one world is open.
           livenessProbe:

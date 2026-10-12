@@ -15,3 +15,6 @@ data:
   CISTERN_GATE_USER: "dowser"
   # The agent proxy, in its own namespace. Its token comes from the Secret.
   AQUEDUCT_URL: "http://aqueduct-service.haar.svc.cluster.local"
+  # A world with no adventure for this long goes dormant: its director
+  # stops and its Haar spends nothing until someone sets out there again.
+  CISTERN_DORMANT_AFTER_HOURS: "168"
