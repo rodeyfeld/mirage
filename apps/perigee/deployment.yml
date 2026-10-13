@@ -13,6 +13,8 @@ spec:
       labels:
         name: perigee
     spec:
+      # No k8s API use; the galaxy default SA is bound to the cluster-wide deployer role.
+      automountServiceAccountToken: false
       containers:
         - name: perigee
           image: schematics.pinwheel.fan/rodeyfeld/perigee

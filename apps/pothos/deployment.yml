@@ -13,6 +13,8 @@ spec:
       labels:
         name: pothos
     spec:
+      # No k8s API use; the galaxy default SA is bound to the cluster-wide deployer role.
+      automountServiceAccountToken: false
       containers:
         - name: pothos
           image: schematics.pinwheel.fan/rodeyfeld/pothos
