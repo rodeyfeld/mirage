@@ -20,6 +20,9 @@ What keeps the lab in the lab (enforced, not just written down):
 | Woodpecker | its own user's token, not the owner's admin one |
 | Hetzner | its own `lab` project, not galaxy's |
 | databases | `lab-postgres` in the namespace; atlas isn't reachable from the lab |
+| secrets | cuneiform `galaxy-kv/prod/mycelia`: `lab_mycologist_git_token`, `lab_mycologist_woodpecker_token`, `lab_hcloud_token` |
+
+**Not fenced yet: CI.** See "Before step 10" below.
 
 ## Setting it up (once, in order)
 
@@ -28,20 +31,27 @@ What keeps the lab in the lab (enforced, not just written down):
 1. *(done 2026-10-13, mirage d46a05f)* On ouroboros, close open registration:
    `WOODPECKER_OPEN: "false"` (`apps/ouroboros/configmap.yml`). Existing users keep
    working; new ones are added by an admin (step 4).
-2. In the Hetzner console: a project `lab`, and a read/write API token for it. (Delete and
+2. *(done 2026-10-13)* In the Hetzner console: a project `lab`, and a read/write API token for it. (Delete and
    rebuild protection on `pinwheel` and `schematics` were already on, checked 2026-10-13.)
 3. On schematics, as an admin:
-   - the user `lab-mycologist`;
-   - the org `lab`, with `lab-mycologist` and `rodeyfeld` as owners;
-   - `lab-mycologist` as a writer on `rodeyfeld/mirage`;
-   - a token for `lab-mycologist` with write:repository, write:organization and
+   - *(done 2026-10-13)* the user `lab-mycologist` (id 5);
+   - *(done 2026-10-13 by the owner's mycologist)* the org `lab`, with `lab-mycologist` and `rodeyfeld` as owners;
+   - **held back** (see "Before step 10"): `lab-mycologist` as a writer on `rodeyfeld/mirage`;
+   - *(done 2026-10-13)* a token for `lab-mycologist` with write:repository, write:organization and
      write:package;
    - *(done 2026-10-13 by the owner's mycologist)* on `rodeyfeld/mirage`'s `main`, branch protection: push only for the whitelisted
      users (rodeyfeld), **unprotected file patterns** `apps/lab-*/**`, so that
      lab-mycologist's write access reaches only those files.
-4. In ouroboros' admin settings, add the user `lab-mycologist` (registration is closed),
+4. *(done 2026-10-13; lab-mycologist is Woodpecker user 3)* In ouroboros' admin settings, add the user `lab-mycologist` (registration is closed),
    then sign in once as it and make its personal token.
-5. Put the three tokens in cuneiform with `cuneiform-policies/patch-key.sh mycelia ...`:
+   - **Gotcha:** a user added in the admin UI gets `forge_id=0, forge_remote_id=0`, and its
+     first Forgejo sign-in fails with "cannot register <login>. registration closed" (in
+     the ouroboros-server logs). Fix: back up `woodpecker-forgejo.sqlite`, then set
+     `forge_id=1, forge_remote_id=<Forgejo user id>` in its `users` row; no restart needed.
+     (Done for lab-mycologist; backup `wp-bak-1013.sqlite` in the ouroboros PVC.)
+   - Woodpecker keeps **one token per user**: resetting lab-mycologist's token breaks the
+     copy in cuneiform.
+5. *(done 2026-10-13)* Put the three tokens in cuneiform with `cuneiform-policies/patch-key.sh mycelia ...`:
    `lab_mycologist_git_token`, `lab_mycologist_woodpecker_token`, `lab_hcloud_token`.
    Do this **before** step 8; `apps/mycelia/secrets.yml` needs them.
 
@@ -50,7 +60,7 @@ What keeps the lab in the lab (enforced, not just written down):
 6. *(done 2026-10-13)* DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179,
    TTL 86400. The org `lab` also exists (done 2026-10-13, private, rodeyfeld its owner): step 3
    only adds `lab-mycologist` to it.
-7. `kubectl apply -f apps/lab/namespace.yml -f apps/lab/to-lab.yml -f apps/spores/lab-mycologist.yml`.
+7. *(done 2026-10-13)* `kubectl apply -f apps/lab/namespace.yml -f apps/lab/to-lab.yml -f apps/spores/lab-mycologist.yml`.
 8. Merge mirage's `lab` branch. Its pipeline runs `lab-guard`, syncs `lab-postgres`'s and
    `lab-pothos`'s secrets into `lab`, and applies `lab-postgres` (the lab-perigee and
    lab-pothos deployments wait for their images, from the moves below).
@@ -59,6 +69,27 @@ What keeps the lab in the lab (enforced, not just written down):
    owner's mycologist's pod, so it comes back on the new image.
 10. Set `MYCELIA_LAB_MYCOLOGIST: "on"` (`apps/mycelia/configmap.yml`). mycelia makes the
     lab mycologist, and it gets its bearings.
+
+**Before step 10: fence CI** (found 2026-10-13, the owner's call)
+
+Every Woodpecker pipeline, whoever triggers it, runs its step pods in `galaxy` as
+`ouroboros-deployer` (`WOODPECKER_BACKEND_K8S_SERVICE_ACCOUNT`), which the
+ClusterRoleBinding `ouroboros-deployer-binding` gives full secrets/pods/deployments
+rights in **every** namespace. A pipeline's steps come from its own `.woodpecker.yml`,
+so once lab-mycologist can trigger one (any repo in `lab`, or any branch it pushes to
+mirage; the branch protection covers `main` only), it can read every secret in the
+cluster. On mirage it would also get the org secret `cuneiform_token`, which reaches
+push events on any branch, and mirage needs approval only for forks. To decide:
+
+- Lab pipelines on their own agent: an org agent for `lab`, with
+  `WOODPECKER_BACKEND_K8S_NAMESPACE=lab` and a service account limited to `lab`, and
+  galaxy's agent kept from taking lab pipelines (check how v3.13 routes org agents).
+- `ouroboros-deployer-binding` as a RoleBinding in `galaxy` only, not cluster-wide.
+- Either no mirage Write for lab-mycologist (the lab agent applies `apps/lab-*` itself),
+  or mirage's `require_approval` set to all events with `approval_allowed_users`
+  [rodeyfeld], so a lab-mycologist push waits for the owner.
+
+Until then, keep `MYCELIA_LAB_MYCOLOGIST` off and lab-mycologist off mirage.
 
 **The lab mycologist** (its first jobs):
 
@@ -102,6 +133,11 @@ Players sign in again after the move (a new `secret_key_base`).
 **reverie** (mirage 4e4afb1) already answers at `reverie.lab.pinwheel.fan`, but from the
 `galaxy` namespace, outside the lab's quota and policies. Move it the same way as perigee
 once the lab is up: repo to `lab/`, manifests to `apps/lab-reverie/` in `lab`.
+
+## Good to know
+
+- Spore pods outlive deploys: after an env or secret change, delete the pod to pick it
+  up. Its PVC stays.
 
 ## Later
 
