@@ -15,8 +15,9 @@ data:
   CISTERN_GATE_USER: "dowser"
   # A second login the gate accepts, for testing by hand: a standard user with
   # an easy password, plain here on purpose. The game has no real data yet.
-  CISTERN_TESTER_USER: "tester"
-  CISTERN_TESTER_PASSWORD: "wetstone"
+  # The pair to remember is the tagline: rain / drystone.
+  CISTERN_TESTER_USER: "rain"
+  CISTERN_TESTER_PASSWORD: "drystone"
   # The agent proxy, in its own namespace. Its token comes from the Secret.
   AQUEDUCT_URL: "http://aqueduct-service.haar.svc.cluster.local"
   # A world with no adventure for this long goes dormant: its director
