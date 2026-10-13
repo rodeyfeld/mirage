@@ -3,8 +3,8 @@
 # else: the built-in `edit` role there, plus traefik and cert-manager resources
 # (mycologist-ingress-extras, mycologist.yml).
 #
-# It deliberately doesn't get `mycologist-read`, the archdruid's cluster-wide
-# read: that reads pods in `spores`, whose specs carry the archdruid's tokens
+# It deliberately doesn't get `mycologist-read`, the archmycologist's cluster-wide
+# read: that reads pods in `spores`, whose specs carry the archmycologist's tokens
 # inline. What it can see outside the lab is the namespaces and nodes, no more.
 apiVersion: v1
 kind: ServiceAccount
@@ -62,7 +62,7 @@ roleRef:
   kind: ClusterRole
   name: lab-mycologist-view
 ---
-# the archdruid is an operator in the lab too: it's above the ovate.
+# the archmycologist is an operator in the lab too: it's above the ovate.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:

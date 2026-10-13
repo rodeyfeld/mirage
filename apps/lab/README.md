@@ -2,12 +2,12 @@
 
 The owner's experiments at `https://<project>.lab.pinwheel.fan`: repos in the forge's
 `lab` org, workloads in the `lab` namespace on galaxy, looked after by the **ovate**, the
-lab's mycologist. Mycologists are ranked like a druid order: archdruid, ovate, bard. The
+lab's mycologist. Mycologists are ranked like a druid order: archmycologist, ovate, bard. The
 ovate is mycelia's spore with rank `"ovate"`: its service account is `lab-mycologist`
 (`apps/spores/lab-mycologist.yml`), its guide `mycelia/spore/lab.md`, its command `lab`.
-The **archdruid** (today's mycologist, the highest rank) is above it: it owns the base
+The **archmycologist** (today's mycologist, the highest rank) is above it: it owns the base
 sites, schematics and the rest, and can read and steer the ovate, which can't read or
-steer it. The owner can always reach the archdruid at mycelia.pinwheel.fan/archdruid.
+steer it. The owner can always reach the archmycologist at mycelia.pinwheel.fan/archmycologist.
 
 What keeps the lab in the lab (enforced, not just written down):
 
@@ -44,7 +44,7 @@ What keeps the lab in the lab (enforced, not just written down):
    `lab_mycologist_git_token`, `lab_mycologist_woodpecker_token`, `lab_hcloud_token`.
    Do this **before** step 8; `apps/mycelia/secrets.yml` needs them.
 
-**The archdruid** (it can do these today, with the owner's yes):
+**The archmycologist** (it can do these today, with the owner's yes):
 
 6. *(done 2026-10-13)* DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179,
    TTL 86400. The org `lab` also exists (done 2026-10-13, private, rodeyfeld its owner): step 3
@@ -53,9 +53,9 @@ What keeps the lab in the lab (enforced, not just written down):
 8. Merge mirage's `lab` branch. Its pipeline runs `lab-guard`, syncs `lab-postgres`'s and
    `lab-pothos`'s secrets into `lab`, and applies `lab-postgres` (the lab-perigee and
    lab-pothos deployments wait for their images, from the moves below).
-9. *(done 2026-10-13: mycelia main 7b4ba7e)* Merge mycelia's `mycelium` branch: mycologists by rank, `/archdruid`, the `lab`
+9. *(done 2026-10-13: mycelia main 7b4ba7e)* Merge mycelia's `mycelium` branch: mycologists by rank, `/archmycologist`, the `lab`
    command and templates, `spore/lab.md`. Once the new spore image is built, delete the
-   archdruid's pod, so it comes back on the new image.
+   archmycologist's pod, so it comes back on the new image.
 10. Set `MYCELIA_LAB_MYCOLOGIST: "on"` (`apps/mycelia/configmap.yml`). mycelia makes the
     ovate, and it gets its bearings.
 
@@ -67,7 +67,7 @@ What keeps the lab in the lab (enforced, not just written down):
     must be rejected.
 13. `lab drill`. It should report under 5 minutes.
 
-## Moving perigee and pothos (the archdruid)
+## Moving perigee and pothos (the archmycologist)
 
 **perigee** has no data, so the move is a cutover:
 
