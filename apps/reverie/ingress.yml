@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reverie-ingress
+  namespace: galaxy
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: galaxy-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: reverie.lab.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: reverie-service
+                port:
+                  number: 80
+  tls:
+    - secretName: reverie-tls
+      hosts:
+        - reverie.lab.pinwheel.fan

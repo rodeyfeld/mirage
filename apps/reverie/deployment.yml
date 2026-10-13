@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reverie
+  namespace: galaxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: reverie
+  template:
+    metadata:
+      labels:
+        name: reverie
+    spec:
+      # No k8s API use; the galaxy default SA is bound to the cluster-wide deployer role.
+      automountServiceAccountToken: false
+      containers:
+        - name: reverie
+          image: schematics.pinwheel.fan/rodeyfeld/reverie
+          imagePullPolicy: Always
+          # The game is static files embedded in a small Go server: no config, no secrets.
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
