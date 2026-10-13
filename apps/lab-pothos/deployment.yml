@@ -1,0 +1,54 @@
+# pothos in the lab (was apps/pothos in galaxy): the plant roguelike, trellis (Phoenix)
+# serving canopy (Lustre) over vine (the engine). Its database moved from atlas to
+# lab-postgres (README in apps/lab/ has the move).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pothos
+  namespace: lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: pothos
+  template:
+    metadata:
+      labels:
+        name: pothos
+        lab: experiment
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: pothos
+          image: schematics.pinwheel.fan/lab/pothos
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: pothos-config
+            - secretRef:
+                name: lab-pothos-env-secrets
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ALL] }
+          livenessProbe:
+            httpGet: { path: /livez, port: 4000 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /readyz, port: 4000 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { memory: 768Mi }
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - { name: tmp, emptyDir: {} }

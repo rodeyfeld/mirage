@@ -1,0 +1,12 @@
+# The redirect every moved experiment's old host uses (redirect-<app>.yml). In galaxy,
+# applied by hand once (README.md here).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: to-lab
+  namespace: galaxy
+spec:
+  redirectRegex:
+    regex: ^https?://([a-z0-9-]+)\.pinwheel\.fan/(.*)
+    replacement: https://${1}.lab.pinwheel.fan/${2}
+    permanent: true

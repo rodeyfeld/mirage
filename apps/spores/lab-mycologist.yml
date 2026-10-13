@@ -1,0 +1,92 @@
+# The lab mycologist's service account (mycelia, profile "lab"; its pod runs as this).
+# Applied by hand, like all RBAC. It's an operator in the `lab` namespace and nowhere
+# else: the built-in `edit` role there, plus traefik and cert-manager resources
+# (mycologist-ingress-extras, mycologist.yml).
+#
+# It deliberately doesn't get `mycologist-read`, the root mycologist's cluster-wide
+# read: that reads pods in `spores`, whose specs carry the root mycologist's tokens
+# inline. What it can see outside the lab is the namespaces and nodes, no more.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lab-mycologist
+  namespace: spores
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lab-mycologist-edit
+  namespace: lab
+subjects:
+  - kind: ServiceAccount
+    name: lab-mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lab-mycologist-ingress-extras
+  namespace: lab
+subjects:
+  - kind: ServiceAccount
+    name: lab-mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mycologist-ingress-extras
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: lab-mycologist-view
+rules:
+  - apiGroups: [""]
+    resources: [namespaces, nodes]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: lab-mycologist-view
+subjects:
+  - kind: ServiceAccount
+    name: lab-mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: lab-mycologist-view
+---
+# The root mycologist is an operator in the lab too: it's above the lab mycologist.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-edit
+  namespace: lab
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-ingress-extras
+  namespace: lab
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mycologist-ingress-extras

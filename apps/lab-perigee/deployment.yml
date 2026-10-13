@@ -1,0 +1,43 @@
+# perigee in the lab (was apps/perigee in galaxy): a one-thumb orbit game, static files
+# embedded in a small Go server. No config, no secrets. README in apps/lab/ has the move.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perigee
+  namespace: lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: perigee
+  template:
+    metadata:
+      labels:
+        name: perigee
+        lab: experiment
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: perigee
+          image: schematics.pinwheel.fan/lab/perigee
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ALL] }
+          livenessProbe:
+            httpGet: { path: /livez, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /readyz, port: 8080 }
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 64Mi }

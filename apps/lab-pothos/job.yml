@@ -1,0 +1,44 @@
+# The pothos role and database on lab-postgres, its password kept equal to its secret.
+# (Made by `lab new --db`'s template.)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pothos-db-ensure
+  namespace: lab
+spec:
+  template:
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: psql
+          image: postgres:17-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ALL] }
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              export PGPASSWORD="$POSTGRES_PASSWORD"
+              psql -v ON_ERROR_STOP=1 -h lab-postgres-service.lab.svc.cluster.local -U postgres -d postgres \
+                -v pw="$DB_PASSWORD" <<'SQL'
+              SELECT format('CREATE ROLE pothos LOGIN PASSWORD %L', :'pw')
+                WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'pothos') \gexec
+              ALTER ROLE pothos WITH LOGIN PASSWORD :'pw';
+              SELECT 'CREATE DATABASE pothos OWNER pothos'
+                WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'pothos') \gexec
+              SQL
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: lab-postgres-env-secrets, key: POSTGRES_PASSWORD }
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: lab-pothos-env-secrets, key: DB_PASSWORD }
+      restartPolicy: OnFailure
+  backoffLimit: 3

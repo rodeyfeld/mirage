@@ -1,0 +1,26 @@
+# Applied by the lab mycologist (mirage's CI applies no ingresses).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: perigee-ingress
+  namespace: lab
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: lab-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: perigee.lab.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: perigee-service
+                port:
+                  number: 80
+  tls:
+    - secretName: perigee-lab-tls
+      hosts:
+        - perigee.lab.pinwheel.fan

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pothos-config
+  namespace: lab
+data:
+  PHX_SERVER: "true"
+  PHX_HOST: "pothos.lab.pinwheel.fan"
+  PORT: "4000"

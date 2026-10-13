@@ -1,0 +1,99 @@
+# The lab: the owner's experiments at <project>.lab.pinwheel.fan, looked after by the lab
+# mycologist (mycelia, profile "lab"; apps/spores/lab-mycologist.yml). Applied by hand,
+# like every namespace, quota and policy (see README.md here for the order).
+#
+# Galaxy is one fixed-size box and the base sites come first, so the lab has a quota.
+# Pod security is "restricted": no hostPath, no privileged or host-network pods, so even
+# a manifest mirage's CI shouldn't have let through can't reach the node.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: lab
+  namespace: lab
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1536Mi
+    limits.memory: 3Gi
+    pods: "20"
+    persistentvolumeclaims: "4"
+    requests.storage: 10Gi
+    services.loadbalancers: "0"
+    services.nodeports: "0"
+---
+# What a container gets when its manifest doesn't say (the quota needs every pod to).
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: lab
+  namespace: lab
+spec:
+  limits:
+    - type: Container
+      default: { memory: 128Mi }
+      defaultRequest: { cpu: 10m, memory: 32Mi }
+      max: { memory: 1Gi }
+---
+# In: traefik (the ingresses), and the lab itself. Out: DNS, the lab itself, and the
+# internet, but nothing else on galaxy: not atlas, not the base sites. Experiments that
+# need a database use lab-postgres.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lab
+  namespace: lab
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+  egress:
+    - to:
+        - podSelector: {}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16
+              - 5.161.236.179/32 # galaxy itself
+---
+# The lab's own https redirect: traefik doesn't follow middlewares across namespaces, so
+# lab ingresses can't use galaxy's.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  namespace: lab
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

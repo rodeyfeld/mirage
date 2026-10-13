@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: perigee-service
+  namespace: lab
+spec:
+  selector:
+    name: perigee
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

@@ -1,0 +1,31 @@
+# perigee.pinwheel.fan, redirected for good to perigee.lab.pinwheel.fan, so links (and
+# perigee's home-screen installs) keep working, with its certificate renewed on its own
+# now that the old ingress is gone. In galaxy, applied by hand at the cutover
+# (README.md here). noop@internal: the redirect answers every request.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: perigee-to-lab
+  namespace: galaxy
+spec:
+  entryPoints: [web, websecure]
+  routes:
+    - match: Host(`perigee.pinwheel.fan`)
+      kind: Rule
+      middlewares:
+        - name: to-lab
+      services:
+        - name: noop@internal
+          kind: TraefikService
+  tls:
+    secretName: perigee-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: perigee-tls
+  namespace: galaxy
+spec:
+  secretName: perigee-tls
+  dnsNames: [perigee.pinwheel.fan]
+  issuerRef: { name: letsencrypt-prod, kind: ClusterIssuer }
