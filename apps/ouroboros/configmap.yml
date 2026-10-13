@@ -4,8 +4,8 @@ metadata:
   name: ouroboros-config
   namespace: galaxy
 data:
-  # Forgejo registration is closed, so only schematics users can log in
-  WOODPECKER_OPEN: "true"
+  # Closed: a new user is added by an admin. Existing users keep signing in.
+  WOODPECKER_OPEN: "false"
   WOODPECKER_BACKEND: "kubernetes"
   WOODPECKER_BACKEND_K8S_NAMESPACE: "galaxy"
   WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
