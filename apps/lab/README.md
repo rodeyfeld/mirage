@@ -24,9 +24,9 @@ What keeps the lab in the lab (enforced, not just written down):
 
 **The owner** (things only a person can do):
 
-1. On ouroboros, close open registration: `WOODPECKER_OPEN: "false"` and
-   `WOODPECKER_ORGS: "rodeyfeld,lab"` (`apps/ouroboros/configmap.yml`), so only members of
-   those two orgs can sign in.
+1. *(asked of the archdruid, 2026-10-13)* On ouroboros, close open registration:
+   `WOODPECKER_OPEN: "false"` (`apps/ouroboros/configmap.yml`). Existing users keep
+   working; new ones are added by an admin (step 4).
 2. In the Hetzner console: a project `lab`, and a read/write API token for it. Also turn on
    delete and rebuild protection for `pinwheel` (galaxy) and `schematics` in theirs.
 3. On schematics, as an admin:
@@ -38,19 +38,21 @@ What keeps the lab in the lab (enforced, not just written down):
    - on `rodeyfeld/mirage`'s `main`, branch protection: push only for the whitelisted
      users (rodeyfeld), **unprotected file patterns** `apps/lab-*/**`, so that
      lab-mycologist's write access reaches only those files.
-4. Sign in to ouroboros once as `lab-mycologist` and make its personal token.
+4. In ouroboros' admin settings, add the user `lab-mycologist` (registration is closed),
+   then sign in once as it and make its personal token.
 5. Put the three tokens in cuneiform with `cuneiform-policies/patch-key.sh mycelia ...`:
    `lab_mycologist_git_token`, `lab_mycologist_woodpecker_token`, `lab_hcloud_token`.
    Do this **before** step 8; `apps/mycelia/secrets.yml` needs them.
 
 **The archdruid** (it can do these today, with the owner's yes):
 
-6. DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179, TTL 86400.
+6. *(asked, 2026-10-13)* DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179,
+   TTL 86400. Also *(asked)* the org `lab`, if the owner hasn't made it in step 3.
 7. `kubectl apply -f apps/lab/namespace.yml -f apps/lab/to-lab.yml -f apps/spores/lab-mycologist.yml`.
 8. Merge mirage's `lab` branch. Its pipeline runs `lab-guard`, syncs `lab-postgres`'s and
    `lab-pothos`'s secrets into `lab`, and applies `lab-postgres` (the lab-perigee and
    lab-pothos deployments wait for their images, from the moves below).
-9. Merge mycelia's `mycelium` branch: mycologists by rank, `/archdruid`, the `lab`
+9. *(done 2026-10-13: mycelia main 7b4ba7e)* Merge mycelia's `mycelium` branch: mycologists by rank, `/archdruid`, the `lab`
    command and templates, `spore/lab.md`. Once the new spore image is built, delete the
    archdruid's pod, so it comes back on the new image.
 10. Set `MYCELIA_LAB_MYCOLOGIST: "on"` (`apps/mycelia/configmap.yml`). mycelia makes the
