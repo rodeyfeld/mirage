@@ -1,19 +1,20 @@
 # The lab
 
 The owner's experiments at `https://<project>.lab.pinwheel.fan`: repos in the forge's
-`lab` org, workloads in the `lab` namespace on galaxy, looked after by the **ovate**, the
-lab's mycologist. Mycologists are ranked like a druid order: archmycologist, ovate, bard. The
-ovate is mycelia's spore with rank `"ovate"`: its service account is `lab-mycologist`
-(`apps/spores/lab-mycologist.yml`), its guide `mycelia/spore/lab.md`, its command `lab`.
-The **archmycologist** (today's mycologist, the highest rank) is above it: it owns the base
-sites, schematics and the rest, and can read and steer the ovate, which can't read or
-steer it. The owner can always reach the archmycologist at mycelia.pinwheel.fan/archmycologist.
+`lab` org, workloads in the `lab` namespace on galaxy, looked after by the **lab
+mycologist**: mycelia's spore with profile `"lab"`, service account `lab-mycologist`
+(`apps/spores/lab-mycologist.yml`), guide `mycelia/spore/lab.md`, command `lab`.
+
+Above it is the **owner's own mycologist**, the highest level (today's mycologist). It
+owns the base sites, schematics and the rest, and can read and steer the lab mycologist,
+which can't read or steer it. The owner can always reach it at
+mycelia.pinwheel.fan/mycologist.
 
 What keeps the lab in the lab (enforced, not just written down):
 
 | Where | How |
 |-------|-----|
-| k8s | the ovate is `edit` in `lab` only; `lab` is pod-security `restricted`, with a quota and a NetworkPolicy (no atlas, no galaxy services) |
+| k8s | the lab mycologist is `edit` in `lab` only; `lab` is pod-security `restricted`, with a quota and a NetworkPolicy (no atlas, no galaxy services) |
 | mirage | it can push only `apps/lab-*/**` (branch protection); `ci/lab-guard.sh` fails the pipeline, before anything is synced or applied, if a lab app has an object outside `lab` or a secret outside its own |
 | forge | it's admin of the `lab` org only; `rodeyfeld/*` aren't its |
 | Woodpecker | its own user's token, not the owner's admin one |
@@ -44,7 +45,7 @@ What keeps the lab in the lab (enforced, not just written down):
    `lab_mycologist_git_token`, `lab_mycologist_woodpecker_token`, `lab_hcloud_token`.
    Do this **before** step 8; `apps/mycelia/secrets.yml` needs them.
 
-**The archmycologist** (it can do these today, with the owner's yes):
+**The owner's mycologist** (it can do these today, with the owner's yes):
 
 6. *(done 2026-10-13)* DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179,
    TTL 86400. The org `lab` also exists (done 2026-10-13, private, rodeyfeld its owner): step 3
@@ -53,13 +54,13 @@ What keeps the lab in the lab (enforced, not just written down):
 8. Merge mirage's `lab` branch. Its pipeline runs `lab-guard`, syncs `lab-postgres`'s and
    `lab-pothos`'s secrets into `lab`, and applies `lab-postgres` (the lab-perigee and
    lab-pothos deployments wait for their images, from the moves below).
-9. *(done 2026-10-13: mycelia main 7b4ba7e)* Merge mycelia's `mycelium` branch: mycologists by rank, `/archmycologist`, the `lab`
+9. *(done 2026-10-13: mycelia main 7b4ba7e)* Merge mycelia's `mycelium` branch: mycologists by rank, `/owner's mycologist`, the `lab`
    command and templates, `spore/lab.md`. Once the new spore image is built, delete the
-   archmycologist's pod, so it comes back on the new image.
+   owner's mycologist's pod, so it comes back on the new image.
 10. Set `MYCELIA_LAB_MYCOLOGIST: "on"` (`apps/mycelia/configmap.yml`). mycelia makes the
-    ovate, and it gets its bearings.
+    lab mycologist, and it gets its bearings.
 
-**The ovate** (its first jobs):
+**The lab mycologist** (its first jobs):
 
 11. In Woodpecker, the `lab` org's secrets `docker_username` (`lab-mycologist`) and
     `docker_password` (its forge token), so lab pipelines can push images.
@@ -67,7 +68,7 @@ What keeps the lab in the lab (enforced, not just written down):
     must be rejected.
 13. `lab drill`. It should report under 5 minutes.
 
-## Moving perigee and pothos (the archmycologist)
+## Moving perigee and pothos (the owner's mycologist)
 
 **perigee** has no data, so the move is a cutover:
 
@@ -97,6 +98,10 @@ What keeps the lab in the lab (enforced, not just written down):
    for a week, then drop it and its role.
 
 Players sign in again after the move (a new `secret_key_base`).
+
+**reverie** (mirage 4e4afb1) already answers at `reverie.lab.pinwheel.fan`, but from the
+`galaxy` namespace, outside the lab's quota and policies. Move it the same way as perigee
+once the lab is up: repo to `lab/`, manifests to `apps/lab-reverie/` in `lab`.
 
 ## Later
 

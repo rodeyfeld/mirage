@@ -1,6 +1,6 @@
 #!/bin/sh
 # lab-guard.sh: the lab's apps (apps/lab-*/) stay in the lab. Runs first in mirage's
-# pipeline, so nothing is synced or applied if it fails. the ovate can push
+# pipeline, so nothing is synced or applied if it fails. the lab mycologist can push
 # only apps/lab-*/** (mirage's branch protection); this checks what's in them, since
 # CI applies them with a deployer that can write anywhere:
 #

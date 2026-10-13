@@ -1,4 +1,4 @@
-# Applied by the ovate (mirage's CI applies no ingresses).
+# Applied by the lab mycologist (mirage's CI applies no ingresses).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
