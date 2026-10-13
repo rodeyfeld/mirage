@@ -1,4 +1,15 @@
 steps:
+  # The lab's apps (apps/lab-*/) stay in the lab namespace and its secrets: checked
+  # before anything is synced or applied. See ci/lab-guard.sh.
+  lab-guard:
+    image: bitnami/kubectl
+    commands:
+      - curl -fsSL -o /tmp/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 && chmod +x /tmp/yq
+      - PATH="/tmp:$PATH" ci/lab-guard.sh
+    when:
+      - event: [push, manual]
+        branch: main
+
   # Make cuneiform + the galaxy Secrets match the repo: policies/roles from
   # cuneiform-policies/*-policy.hcl, secrets from apps/*/secrets.yml (missing
   # `generate:` keys are created once). See cuneiform-policies/README.md.
@@ -25,7 +36,8 @@ steps:
       # Apply only namespace-scoped resources that CI has permission for.
       # Cluster-scoped resources (RBAC, PV, Ingress, ServiceAccounts, Namespaces,
       # NetworkPolicies, quotas) are managed manually. Every manifest names its
-      # namespace (galaxy, or haar for the agent side), so none is passed here.
+      # namespace (galaxy, haar for the agent side, or lab for apps/lab-*/), so none
+      # is passed here.
       - |
         for file in apps/*/deployment.yml apps/*/*-postgres.yml apps/*/service.yml apps/*/configmap.yml \
                     apps/*/statefulset.yml apps/*/*pvc.yml apps/*/job.yml; do
