@@ -56,7 +56,7 @@ What keeps the lab in the lab (enforced, not just written down):
 10. Set `MYCELIA_LAB_MYCOLOGIST: "on"` (`apps/mycelia/configmap.yml`). mycelia makes the
     adept, and it gets its bearings.
 
-**the adept** (its first jobs):
+**The adept** (its first jobs):
 
 11. In Woodpecker, the `lab` org's secrets `docker_username` (`lab-mycologist`) and
     `docker_password` (its forge token), so lab pipelines can push images.
