@@ -24,7 +24,7 @@ What keeps the lab in the lab (enforced, not just written down):
 
 **The owner** (things only a person can do):
 
-1. *(asked of the archdruid, 2026-10-13)* On ouroboros, close open registration:
+1. *(done 2026-10-13, mirage d46a05f)* On ouroboros, close open registration:
    `WOODPECKER_OPEN: "false"` (`apps/ouroboros/configmap.yml`). Existing users keep
    working; new ones are added by an admin (step 4).
 2. In the Hetzner console: a project `lab`, and a read/write API token for it. Also turn on
@@ -46,8 +46,9 @@ What keeps the lab in the lab (enforced, not just written down):
 
 **The archdruid** (it can do these today, with the owner's yes):
 
-6. *(asked, 2026-10-13)* DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179,
-   TTL 86400. Also *(asked)* the org `lab`, if the owner hasn't made it in step 3.
+6. *(done 2026-10-13)* DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179,
+   TTL 86400. The org `lab` also exists (done 2026-10-13, private, rodeyfeld its owner): step 3
+   only adds `lab-mycologist` to it.
 7. `kubectl apply -f apps/lab/namespace.yml -f apps/lab/to-lab.yml -f apps/spores/lab-mycologist.yml`.
 8. Merge mirage's `lab` branch. Its pipeline runs `lab-guard`, syncs `lab-postgres`'s and
    `lab-pothos`'s secrets into `lab`, and applies `lab-postgres` (the lab-perigee and
