@@ -28,15 +28,15 @@ What keeps the lab in the lab (enforced, not just written down):
 1. *(done 2026-10-13, mirage d46a05f)* On ouroboros, close open registration:
    `WOODPECKER_OPEN: "false"` (`apps/ouroboros/configmap.yml`). Existing users keep
    working; new ones are added by an admin (step 4).
-2. In the Hetzner console: a project `lab`, and a read/write API token for it. Also turn on
-   delete and rebuild protection for `pinwheel` (galaxy) and `schematics` in theirs.
+2. In the Hetzner console: a project `lab`, and a read/write API token for it. (Delete and
+   rebuild protection on `pinwheel` and `schematics` were already on, checked 2026-10-13.)
 3. On schematics, as an admin:
    - the user `lab-mycologist`;
    - the org `lab`, with `lab-mycologist` and `rodeyfeld` as owners;
    - `lab-mycologist` as a writer on `rodeyfeld/mirage`;
    - a token for `lab-mycologist` with write:repository, write:organization and
      write:package;
-   - on `rodeyfeld/mirage`'s `main`, branch protection: push only for the whitelisted
+   - *(done 2026-10-13 by the owner's mycologist)* on `rodeyfeld/mirage`'s `main`, branch protection: push only for the whitelisted
      users (rodeyfeld), **unprotected file patterns** `apps/lab-*/**`, so that
      lab-mycologist's write access reaches only those files.
 4. In ouroboros' admin settings, add the user `lab-mycologist` (registration is closed),
