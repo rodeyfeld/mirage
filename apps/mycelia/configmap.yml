@@ -26,10 +26,10 @@ data:
   # mycologist.yml), summoned to failed deploys, conflicting agents and spores
   # that ask for help.
   MYCELIA_MYCOLOGIST_SPORE: "on"
-  # The orrery's collector (/map/orrery): kami's deploys API (Woodpecker
+  # The rhizomorph's collector (/map/rhizomorph): kami's deploys API (Woodpecker
   # pipelines + rollouts) and noctis's Prefect API, both in-cluster.
-  MYCELIA_ORRERY_KAMI_URL: "http://kami-service.galaxy.svc.cluster.local:8888"
-  MYCELIA_ORRERY_PREFECT_URL: "http://noctis-prefect-service.galaxy.svc.cluster.local:4200/api"
+  MYCELIA_RHIZOMORPH_KAMI_URL: "http://kami-service.galaxy.svc.cluster.local:8888"
+  MYCELIA_RHIZOMORPH_PREFECT_URL: "http://noctis-prefect-service.galaxy.svc.cluster.local:4200/api"
 ---
 apiVersion: v1
 kind: ConfigMap
