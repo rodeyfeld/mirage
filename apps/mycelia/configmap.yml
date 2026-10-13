@@ -26,7 +26,7 @@ data:
   # mycologist.yml), summoned to failed deploys, conflicting agents and spores
   # that ask for help.
   MYCELIA_MYCOLOGIST_SPORE: "on"
-  # The lab mycologist (profile "lab"; apps/spores/lab-mycologist.yml), beside the root
+  # the adept (rank "adept"; apps/spores/lab-mycologist.yml), beside the magister
   # one: the experiments at <project>.lab.pinwheel.fan. "on" once apps/lab/README.md's
   # setup is done.
   MYCELIA_LAB_MYCOLOGIST: "off"

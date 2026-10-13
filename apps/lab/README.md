@@ -1,18 +1,19 @@
 # The lab
 
 The owner's experiments at `https://<project>.lab.pinwheel.fan`: repos in the forge's
-`lab` org, workloads in the `lab` namespace on galaxy, looked after by the **lab
-mycologist**. That's mycelia's spore with profile `"lab"`: its service account is
-`lab-mycologist` (`apps/spores/lab-mycologist.yml`), its guide `mycelia/spore/lab.md`, its
-command `lab`. The **root mycologist** (today's mycologist) is above it: it owns the base
-sites, schematics and the rest, and can read and steer the lab mycologist, which can't
-read or steer it.
+`lab` org, workloads in the `lab` namespace on galaxy, looked after by the **adept**, the
+lab's mycologist. Mycologists are ranked like alchemists: magister, adept, initiate. The
+adept is mycelia's spore with rank `"adept"`: its service account is `lab-mycologist`
+(`apps/spores/lab-mycologist.yml`), its guide `mycelia/spore/lab.md`, its command `lab`.
+The **magister** (today's mycologist, the highest rank) is above it: it owns the base
+sites, schematics and the rest, and can read and steer the adept, which can't read or
+steer it. The owner can always reach the magister at mycelia.pinwheel.fan/magister.
 
 What keeps the lab in the lab (enforced, not just written down):
 
 | Where | How |
 |-------|-----|
-| k8s | the lab mycologist is `edit` in `lab` only; `lab` is pod-security `restricted`, with a quota and a NetworkPolicy (no atlas, no galaxy services) |
+| k8s | the adept is `edit` in `lab` only; `lab` is pod-security `restricted`, with a quota and a NetworkPolicy (no atlas, no galaxy services) |
 | mirage | it can push only `apps/lab-*/**` (branch protection); `ci/lab-guard.sh` fails the pipeline, before anything is synced or applied, if a lab app has an object outside `lab` or a secret outside its own |
 | forge | it's admin of the `lab` org only; `rodeyfeld/*` aren't its |
 | Woodpecker | its own user's token, not the owner's admin one |
@@ -42,20 +43,20 @@ What keeps the lab in the lab (enforced, not just written down):
    `lab_mycologist_git_token`, `lab_mycologist_woodpecker_token`, `lab_hcloud_token`.
    Do this **before** step 8; `apps/mycelia/secrets.yml` needs them.
 
-**The root mycologist** (it can do these today, with the owner's yes):
+**The magister** (it can do these today, with the owner's yes):
 
 6. DNS: a new A record `*.lab.pinwheel.fan` → 5.161.236.179, TTL 86400.
 7. `kubectl apply -f apps/lab/namespace.yml -f apps/lab/to-lab.yml -f apps/spores/lab-mycologist.yml`.
 8. Merge mirage's `lab` branch. Its pipeline runs `lab-guard`, syncs `lab-postgres`'s and
    `lab-pothos`'s secrets into `lab`, and applies `lab-postgres` (the lab-perigee and
    lab-pothos deployments wait for their images, from the moves below).
-9. Merge mycelia's `mycelium` branch: mycologists by profile, the `lab` command and
-   templates, `spore/lab.md`. Once the new spore image is built, delete the root
-   mycologist's pod, so it comes back on the new image.
+9. Merge mycelia's `mycelium` branch: mycologists by rank, `/magister`, the `lab`
+   command and templates, `spore/lab.md`. Once the new spore image is built, delete the
+   magister's pod, so it comes back on the new image.
 10. Set `MYCELIA_LAB_MYCOLOGIST: "on"` (`apps/mycelia/configmap.yml`). mycelia makes the
-    lab mycologist, and it gets its bearings.
+    adept, and it gets its bearings.
 
-**The lab mycologist** (its first jobs):
+**the adept** (its first jobs):
 
 11. In Woodpecker, the `lab` org's secrets `docker_username` (`lab-mycologist`) and
     `docker_password` (its forge token), so lab pipelines can push images.
@@ -63,7 +64,7 @@ What keeps the lab in the lab (enforced, not just written down):
     must be rejected.
 13. `lab drill`. It should report under 5 minutes.
 
-## Moving perigee and pothos (the root mycologist)
+## Moving perigee and pothos (the magister)
 
 **perigee** has no data, so the move is a cutover:
 

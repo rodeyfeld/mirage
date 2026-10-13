@@ -1,10 +1,10 @@
-# The lab mycologist's service account (mycelia, profile "lab"; its pod runs as this).
+# The adept's service account (mycelia, rank "adept"; its pod runs as this).
 # Applied by hand, like all RBAC. It's an operator in the `lab` namespace and nowhere
 # else: the built-in `edit` role there, plus traefik and cert-manager resources
 # (mycologist-ingress-extras, mycologist.yml).
 #
-# It deliberately doesn't get `mycologist-read`, the root mycologist's cluster-wide
-# read: that reads pods in `spores`, whose specs carry the root mycologist's tokens
+# It deliberately doesn't get `mycologist-read`, the magister's cluster-wide
+# read: that reads pods in `spores`, whose specs carry the magister's tokens
 # inline. What it can see outside the lab is the namespaces and nodes, no more.
 apiVersion: v1
 kind: ServiceAccount
@@ -62,7 +62,7 @@ roleRef:
   kind: ClusterRole
   name: lab-mycologist-view
 ---
-# The root mycologist is an operator in the lab too: it's above the lab mycologist.
+# the magister is an operator in the lab too: it's above the adept.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
