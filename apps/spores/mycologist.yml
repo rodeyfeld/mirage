@@ -1,8 +1,11 @@
 # The mycologist's spore (mycelia's own, always on; Mycelia.Mycologist.Summons)
-# runs as this service account, with its token mounted. It fixes failed deploys
-# and stuck rollouts, so it reads the whole cluster (not secrets) and can restart
-# galaxy's workloads. It can't create workloads, read secrets or change RBAC:
-# real changes go through mirage, by a push. Applied by hand:
+# runs as this service account, with its token mounted. It reads the whole
+# cluster (not secrets). In the app namespaces (galaxy, haar, sporocarps) it's an
+# operator: the built-in `edit` role plus traefik and cert-manager resources, so
+# it can apply what mirage's CI doesn't (ingresses, network policies, service
+# accounts) and fix things by hand. It can't change RBAC, quotas, namespaces or
+# nodes, and has no write access in kube-system, cert-manager or its own spores
+# namespace (it can't loosen its own sandbox). Applied by hand:
 #   kubectl apply -f apps/spores/
 apiVersion: v1
 kind: ServiceAccount
@@ -65,25 +68,21 @@ roleRef:
   kind: ClusterRole
   name: mycologist-read
 ---
-# In galaxy: restart a workload (`kubectl rollout restart` patches its pod
-# template) and delete a wedged pod.
+# What `edit` leaves out in the app namespaces: traefik's routes and middlewares
+# and cert-manager's certificates and issuers.
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
-  name: mycologist-operate
-  namespace: galaxy
+  name: mycologist-ingress-extras
 rules:
-  - apiGroups: [apps]
-    resources: [deployments, statefulsets, daemonsets]
-    verbs: [patch]
-  - apiGroups: [""]
-    resources: [pods]
-    verbs: [delete]
+  - apiGroups: [traefik.io, cert-manager.io]
+    resources: ["*"]
+    verbs: [get, list, watch, create, update, patch, delete]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: mycologist-operate
+  name: mycologist-edit
   namespace: galaxy
 subjects:
   - kind: ServiceAccount
@@ -91,5 +90,75 @@ subjects:
     namespace: spores
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: mycologist-operate
+  kind: ClusterRole
+  name: edit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-ingress-extras
+  namespace: galaxy
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mycologist-ingress-extras
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-edit
+  namespace: haar
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-ingress-extras
+  namespace: haar
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mycologist-ingress-extras
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-edit
+  namespace: sporocarps
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-ingress-extras
+  namespace: sporocarps
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mycologist-ingress-extras
