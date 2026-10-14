@@ -5,7 +5,8 @@
 # it can apply what mirage's CI doesn't (ingresses, network policies, service
 # accounts) and fix things by hand. It can't change RBAC, quotas, namespaces or
 # nodes, and has no write access in kube-system, cert-manager or its own spores
-# namespace (it can't loosen its own sandbox). Applied by hand:
+# namespace (it can't loosen its own sandbox), save the spores quota (below).
+# Applied by hand:
 #   kubectl apply -f apps/spores/
 apiVersion: v1
 kind: ServiceAccount
@@ -162,3 +163,33 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: mycologist-ingress-extras
+---
+# The one exception to "it can't loosen its own sandbox": the owner lets it set
+# how many spores run at once (apps/spores/namespace.yml's quota), so capacity
+# changes don't wait on the owner's kubeconfig. Only that one quota, by name, and
+# only get/patch/update: no create or delete, not the namespace, nothing else in
+# spores.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mycologist-quota
+  namespace: spores
+rules:
+  - apiGroups: [""]
+    resources: ["resourcequotas"]
+    resourceNames: ["spores"]
+    verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycologist-quota
+  namespace: spores
+subjects:
+  - kind: ServiceAccount
+    name: mycologist
+    namespace: spores
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mycologist-quota
