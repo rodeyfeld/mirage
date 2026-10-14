@@ -18,6 +18,7 @@ spec:
       labels:
         name: noctis-postgres
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           image: postgres:14
