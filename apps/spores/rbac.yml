@@ -1,5 +1,6 @@
-# mycelia (ServiceAccount galaxy/mycelia) manages spore pods and their home
-# volumes, in this namespace only.
+# mycelia (ServiceAccount galaxy/mycelia) manages spore pods, their home
+# volumes and the Secrets holding their tokens (MYCELIA_SPORES_SECRETS), in this
+# namespace only.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -11,6 +12,9 @@ rules:
     verbs: [get, list, watch, create, delete]
   - apiGroups: [""]
     resources: [persistentvolumeclaims]
+    verbs: [get, create, delete]
+  - apiGroups: [""]
+    resources: [secrets]
     verbs: [get, create, delete]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

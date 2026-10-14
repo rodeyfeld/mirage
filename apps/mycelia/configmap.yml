@@ -19,6 +19,9 @@ data:
   MYCELIA_SPORES_HOST: "kube"
   MYCELIA_SPORES_NAMESPACE: "spores"
   MYCELIA_SPORES_IMAGE: "schematics.pinwheel.fan/rodeyfeld/spore:latest"
+  # Each spore pod's tokens in a Secret of its own, not its spec. Needs the
+  # secrets rule in apps/spores/rbac.yml applied first (RBAC is applied by hand).
+  MYCELIA_SPORES_SECRETS: "on"
   # Spores commit to the universe repos as rodeyfeld; the push token is
   # spores_git_token in cuneiform (MYCELIA_SPORES_GIT_TOKEN).
   MYCELIA_SPORES_GIT_EMAIL: "eric.d.rodefeld@gmail.com"
