@@ -1,0 +1,27 @@
+# Not applied by mirage's CI (it applies no ingresses): `lab new` applies it.
+# *.lab.pinwheel.fan already points at galaxy; cert-manager gets the certificate.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sigil-ingress
+  namespace: lab
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: lab-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: sigil.lab.pinwheel.fan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sigil-service
+                port:
+                  number: 80
+  tls:
+    - secretName: sigil-tls
+      hosts:
+        - sigil.lab.pinwheel.fan
