@@ -13,3 +13,6 @@ spec:
     - http01:
         ingress:
           class: traefik
+          # ClusterIP, not the default NodePort: Traefik routes to it, and namespaces like
+          # lab forbid NodePort services in their quota.
+          serviceType: ClusterIP
