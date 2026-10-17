@@ -17,7 +17,10 @@ spec:
       serviceAccountName: cuneiform
       containers:
         - name: cuneiform
-          image: openbao/openbao:latest
+          # Pinned: the version that wrote the raft data (2025-11). From 2.5/2.6 on the
+          # image runs as the non-root openbao user and can't open the root-owned
+          # /openbao/data, so moving past 2.4 needs a chown (the owner's call).
+          image: openbao/openbao:2.4.4
           imagePullPolicy: Always
           command: ["bao"]
           args: ["server", "-config", "/openbao/config/config.hcl"]
