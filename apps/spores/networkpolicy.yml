@@ -1,7 +1,7 @@
 # Only mycelia talks to a spore (its bridge on 8080). A spore can reach mycelia
 # (its hooks report there, so it shows on the activity graph) and the internet
-# (Anthropic, schematics, GitHub, package registries) and the sporocarps, but
-# nothing else in the cluster: no other pods or services (10.0.0.0/8 covers
+# (Anthropic, schematics, GitHub, package registries), the sporocarps and the
+# sites galaxy serves (through traefik), but nothing else in the cluster: no other pods or services (10.0.0.0/8 covers
 # k3s's 10.42/10.43), no private ranges, no cloud metadata, and not the node.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -60,11 +60,30 @@ spec:
               - 100.64.0.0/10
               - 169.254.0.0/16
               - 5.161.236.179/32 # galaxy itself
+    # The sites galaxy serves (*.pinwheel.fan, the projects' live deploys): galaxy's
+    # :443, which kube-proxy forwards to traefik's websecure port. Only what's
+    # public anyway; no traefik route trusts an internal source IP.
+    - to:
+        - ipBlock:
+            cidr: 5.161.236.179/32 # galaxy itself
+      ports:
+        - port: 443
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - port: 8443
+          protocol: TCP
 ---
 # The mycologist's spore (mycologist.yml) also reaches the Kubernetes API, as the
 # kubernetes service (10.43.0.1:443) and as the server it forwards to (galaxy
-# itself, :6443), kami (its pod's 8080) for the galaxy's deploys, and Woodpecker
-# through traefik. Policies add up: this is on top of the one above.
+# itself, :6443) and kami (its pod's 8080) for the galaxy's deploys; Woodpecker
+# comes through traefik like every spore's sites. Policies add up: this is on top of the one above.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -97,22 +116,4 @@ spec:
               name: kami
       ports:
         - port: 8080
-          protocol: TCP
-    # Woodpecker, as https://ouroboros.pinwheel.fan: galaxy's :443, which
-    # kube-proxy forwards to traefik's websecure port. Only what's public anyway.
-    - to:
-        - ipBlock:
-            cidr: 5.161.236.179/32 # galaxy itself
-      ports:
-        - port: 443
-          protocol: TCP
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
-      ports:
-        - port: 8443
           protocol: TCP
