@@ -1,0 +1,102 @@
+# The worker box: what mycelia needs to run the owner's spores here. Applied by hand
+# (README.md). The same shape a colony's server gets from mycelia's cloud-init, for
+# spores only so far; builds (ns ci) and sporocarps come with their own moves.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spores
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+# galaxy's spores quota (apps/spores/namespace.yml), with room for the homes of the
+# spores that move here.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: spores
+  namespace: spores
+spec:
+  hard:
+    pods: "8"
+    limits.cpu: "16"
+    limits.memory: 24Gi
+    requests.memory: 4Gi
+    persistentvolumeclaims: "40"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spores-egress
+  namespace: spores
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  # Only the bridge, which mycelia reaches through the API server's pod proxy (and
+  # which wants the spore's token).
+  ingress:
+    - ports: [{ port: 8080, protocol: TCP }]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: kube-system }
+          podSelector:
+            matchLabels: { k8s-app: kube-dns }
+      ports: [{ port: 53, protocol: UDP }, { port: 53, protocol: TCP }]
+    - to:
+        # The internet (mycelia's public URL, the forge, Anthropic), not this cluster,
+        # the node, the metadata service, or galaxy's API.
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, WORKERS_IP/32,
+                     5.161.236.179/32]
+    - to:
+        - ipBlock: { cidr: 5.161.236.179/32 }   # galaxy: its ingress only, never :6443
+      ports: [{ port: 443, protocol: TCP }, { port: 80, protocol: TCP }]
+---
+# mycelia: what it may do here, and nothing else.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mycelia
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: control-plane
+  namespace: mycelia
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: control-plane-token
+  namespace: mycelia
+  annotations:
+    kubernetes.io/service-account.name: control-plane
+type: kubernetes.io/service-account-token
+---
+# Host.Kube's needs: pods (and their proxy, for the bridge), the home claims, the
+# per-pod Secrets with the spore's tokens.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mycelia-spores
+  namespace: spores
+rules:
+  - apiGroups: [""]
+    resources: [pods, pods/log, pods/proxy, persistentvolumeclaims, secrets]
+    verbs: [get, list, watch, create, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mycelia-spores
+  namespace: spores
+subjects:
+  - kind: ServiceAccount
+    name: control-plane
+    namespace: mycelia
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mycelia-spores
