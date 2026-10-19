@@ -25,11 +25,52 @@ rules:
     resources: ["pods", "pods/log", "persistentvolumeclaims"]
     verbs: ["create", "delete", "get", "list", "watch", "update", "patch"]
 
+# Bound only in the namespaces CI writes to (galaxy, haar, lab), not cluster-wide:
+# no Secrets in spores, sporocarps, kube-system or cert-manager. `default` is here
+# because the projects' own deploy steps run as it (`kubectl rollout restart`).
+# Applied by hand. Replacing the old cluster-wide binding:
+#   kubectl apply -f apps/ouroboros/rbac.yml
+#   kubectl delete clusterrolebinding ouroboros-deployer-binding
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
-  name: ouroboros-deployer-binding
+  name: ouroboros-deployer
+  namespace: galaxy
+subjects:
+  - kind: ServiceAccount
+    name: ouroboros-deployer
+    namespace: galaxy
+  - kind: ServiceAccount
+    name: default
+    namespace: galaxy
+roleRef:
+  kind: ClusterRole
+  name: ouroboros-deployer-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ouroboros-deployer
+  namespace: haar
+subjects:
+  - kind: ServiceAccount
+    name: ouroboros-deployer
+    namespace: galaxy
+  - kind: ServiceAccount
+    name: default
+    namespace: galaxy
+roleRef:
+  kind: ClusterRole
+  name: ouroboros-deployer-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ouroboros-deployer
+  namespace: lab
 subjects:
   - kind: ServiceAccount
     name: ouroboros-deployer
