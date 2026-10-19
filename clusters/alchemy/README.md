@@ -1,7 +1,10 @@
-# schematics
+# alchemy
 
-Forgejo (git + container registry) on its own Hetzner CX33, `schematics.pinwheel.fan`.
-Separate from galaxy so a broken galaxy doesn't take the source and images with it.
+The cluster for what isn't tied to a colony's box: a single-node k3s on its own Hetzner CX33
+in nbg1. Today it runs **schematics**, Forgejo (git + container registry) at
+`schematics.pinwheel.fan`. Planned (diagrams/universe-plan.md in the workspace): the
+Woodpecker server, cuneiform, garage as S3 for colonies, and the backups. Separate from
+galaxy so a broken galaxy doesn't take the source and images with it.
 
 - Web: https://schematics.pinwheel.fan
 - Git over SSH: `git@schematics.pinwheel.fan:<owner>/<repo>.git` (port 22 is Forgejo)
@@ -20,7 +23,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=<version> sh -
 ssh schematics 'k3s kubectl apply -f -' < cluster/cert-manager/cert-manager.yml
 ssh schematics 'k3s kubectl apply -f -' < cluster/security/issuer-prod.yml
 
-cd clusters/schematics
+cd clusters/alchemy
 ssh schematics 'mkdir -p /data/schematics/forgejo/{data,config} /data/schematics/postgres && chown -R 1000:1000 /data/schematics/forgejo'
 for f in namespace middleware-https traefik-config; do ssh schematics 'k3s kubectl apply -f -' < $f.yml; done
 ssh schematics 'bash -s' < bootstrap-secrets.sh

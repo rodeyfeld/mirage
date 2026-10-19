@@ -4,7 +4,7 @@
 # runs the first pull. Safe to rerun.
 set -euo pipefail
 cd "$(dirname "$0")"
-schematics_backup=../../schematics/backup
+schematics_backup=../../alchemy/backup
 
 # put HOST MODE DEST < file. Via a temp file: schematics' uutils `install` can't read
 # /dev/stdin when DEST already exists
