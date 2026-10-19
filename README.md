@@ -2,69 +2,33 @@
 
 All the k8s manifests for the galaxy cluster running on Hetzner.
 
-## Deploying everything
+Each app is `apps/<app>/`: its `deployment.yml`, `service.yml`, `configmap.yml`, `ingress.yml`,
+storage (`*pv.yml`/`*pvc.yml`), RBAC and `secrets.yml` (what cuneiform syncs into its
+Secret). Clusters other than galaxy, and galaxy's host setup, are in `clusters/`:
+`clusters/galaxy/` (k3s config, limits, backups), `clusters/alchemy/` (the forge's box,
+schematics) and `clusters/workers/` (the worker box, for spores).
 
-1. Make the namespace:
+## Deploying
 
-   ```bash
-   kubectl apply -f namespace.yml
-   ```
+Pushing to `main` deploys, through `.woodpecker.yml` on ouroboros:
 
-2. Create secrets (check the constellation repo for commands)
+1. `lab-guard` keeps `apps/lab-*/` in the lab namespace.
+2. `sync-secrets` makes cuneiform and each app's Secret match `apps/*/secrets.yml`
+   (`cuneiform-policies/`).
+3. `apply-all` applies the namespace-scoped manifests: `deployment.yml`, `*-postgres.yml`,
+   `service.yml`, `configmap.yml`, `statefulset.yml`, `*pvc.yml`, `job.yml`.
+4. `restart-changed` restarts the apps this push touched (`ci/restart-changed.sh`).
 
-3. Set up storage:
-
-   ```bash
-   kubectl apply -f volumes/atlas.yml
-   kubectl apply -f volumes/garage.yml
-   ```
-
-4. Deploy stuff in order:
-
-   ```bash
-   # Database first
-   kubectl apply -f deployments/atlas.yml
-   kubectl apply -f services/atlas.yml
-
-   # API layer
-   kubectl apply -f deployments/augur.yml
-   kubectl apply -f services/augur.yml
-
-   # Run migrations
-   kubectl apply -f jobs/augur-db-migrate.yml
-   kubectl wait --for=condition=complete job/augur-db-migrate -n galaxy --timeout=5m
-   kubectl delete job/augur-db-migrate -n galaxy
-
-   # Frontend
-   kubectl apply -f deployments/luna.yml
-   kubectl apply -f services/luna.yml
-
-   # Everything else
-   kubectl apply -f deployments/doppler.yml
-   kubectl apply -f services/doppler.yml
-   kubectl apply -f deployments/dreamflow.yml
-   kubectl apply -f services/dreamflow.yml
-   kubectl apply -f deployments/garage.yml
-   kubectl apply -f services/garage.yml
-   ```
-
-5. Set up ingress:
-   ```bash
-   kubectl apply -f ingress.yml
-   ```
-
-## Updating a service
+Everything else is applied by hand: namespaces, RBAC, PVs, ingresses, NetworkPolicies,
+quotas, and files the pipeline's globs don't match (e.g. `apps/ouroboros/ouroboros-*.yml`,
+`apps/garage/garage*.yml`, `apps/noctis/prefect-server.yml`, `apps/augur/augur-db-migrate.yml`):
 
 ```bash
-# Build locally
-cd ~/universe/luna
-docker build --target prod -t edrodefeld/luna .
-docker push edrodefeld/luna:latest
-
-# Deploy
-kubectl rollout restart deployment/luna -n galaxy
-kubectl rollout status deployment/luna -n galaxy
+ssh galaxy 'k3s kubectl apply -f -' < apps/<app>/<file>.yml
 ```
+
+Each project's own `.woodpecker.yml` builds its image into the schematics registry and
+restarts its workload; `deploy-status <repo>` (in a spore) says how it went.
 
 ## Cluster components
 
