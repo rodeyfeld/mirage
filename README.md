@@ -12,12 +12,11 @@ schematics) and `clusters/workers/` (the worker box, for spores).
 
 Pushing to `main` deploys, through `.woodpecker.yml` on ouroboros:
 
-1. `lab-guard` keeps `apps/lab-*/` in the lab namespace.
-2. `sync-secrets` makes cuneiform and each app's Secret match `apps/*/secrets.yml`
+1. `sync-secrets` makes cuneiform and each app's Secret match `apps/*/secrets.yml`
    (`cuneiform-policies/`).
-3. `apply-all` applies the namespace-scoped manifests: `deployment.yml`, `*-postgres.yml`,
+2. `apply-all` applies the namespace-scoped manifests: `deployment.yml`, `*-postgres.yml`,
    `service.yml`, `configmap.yml`, `statefulset.yml`, `*pvc.yml`, `job.yml`.
-4. `restart-changed` restarts the apps this push touched (`ci/restart-changed.sh`).
+3. `restart-changed` restarts the apps this push touched (`ci/restart-changed.sh`).
 
 Everything else is applied by hand: namespaces, RBAC, PVs, ingresses, NetworkPolicies,
 quotas, and files the pipeline's globs don't match (e.g. `apps/ouroboros/ouroboros-*.yml`,
