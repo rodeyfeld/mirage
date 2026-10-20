@@ -27,7 +27,7 @@ data:
   # The commons (Mycelia.Hosts, started at /people): the shared box small colonies
   # are placed on. A cax31 in Falkenstein, arm64 (cx43s were sold out), so colony
   # projects build for arm64 there.
-  MYCELIA_COMMONS_TYPE: "cax31"
+  MYCELIA_COMMONS_TYPE: "cax21"
   MYCELIA_COMMONS_LOCATION: "fsn1"
   MYCELIA_COMMONS_ARM64: "on"
   # Spores commit to the universe repos as rodeyfeld; the push token is
