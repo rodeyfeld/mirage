@@ -19,6 +19,11 @@ data:
   MYCELIA_SPORES_HOST: "kube"
   MYCELIA_SPORES_NAMESPACE: "spores"
   MYCELIA_SPORES_IMAGE: "schematics.pinwheel.fan/rodeyfeld/spore:latest"
+  # The worker box (Mycelia.Hosts, started at /people): a cax31 in Helsinki, arm64.
+  # The spore image is built for arm64 too (mycelia CI, since 16b8485).
+  MYCELIA_WORKERS_TYPE: "cax31"
+  MYCELIA_WORKERS_LOCATION: "hel1"
+  MYCELIA_WORKERS_ARM64_IMAGE: "on"
   # Spores commit to the universe repos as rodeyfeld; the push token is
   # spores_git_token in cuneiform (MYCELIA_SPORES_GIT_TOKEN).
   MYCELIA_SPORES_GIT_EMAIL: "eric.d.rodefeld@gmail.com"
