@@ -5,21 +5,24 @@
 # as every push used to.
 #   cuneiform: never restarted; a restart seals the vault
 #   ouroboros: never restarted; it would kill this pipeline. Restart it by hand.
+#   StatefulSets (the databases, garage): only when the file declaring them changed.
+#     An app's config or Secret changing restarts its Deployments, not its Postgres,
+#     which the app would then race at startup.
 # Needs CI_PIPELINE_FILES (Woodpecker's JSON list of changed files) and kubectl.
 set -uo pipefail
 NS=galaxy
 cd "$(dirname "$0")/.."
 
-# namespace kind/name of each Deployment and StatefulSet in an app's manifests
+# namespace kind/name file, of each Deployment and StatefulSet in an app's manifests
 workloads() {
   awk -v ns="$NS" '
     /^---/                       { kind = ""; meta = 0; name = ""; space = ns }
     /^kind:/                     { kind = $2 }
     /^metadata:/                 { meta = 1; next }
-    /^[^ #]/                     { if (meta && name != "" && (kind == "Deployment" || kind == "StatefulSet")) print space " " tolower(kind) "/" name; meta = 0; name = "" }
+    /^[^ #]/                     { if (meta && name != "" && (kind == "Deployment" || kind == "StatefulSet")) print space " " tolower(kind) "/" name " " FILENAME; meta = 0; name = "" }
     meta && /^  name:/           { name = $2 }
     meta && /^  namespace:/      { space = $2 }
-    END                          { if (meta && name != "" && (kind == "Deployment" || kind == "StatefulSet")) print space " " tolower(kind) "/" name }
+    END                          { if (meta && name != "" && (kind == "Deployment" || kind == "StatefulSet")) print space " " tolower(kind) "/" name " " FILENAME }
   ' apps/"$1"/*.yml | sort -u
 }
 
@@ -39,7 +42,14 @@ for app in $apps; do
     ouroboros) echo "skip ouroboros (would kill this pipeline); restart it by hand"; continue ;;
   esac
   [ -d "apps/$app" ] || continue
-  workloads "$app" | while read -r space w; do
+  workloads "$app" | while read -r space w file; do
+    case "$w" in
+      statefulset/*)
+        if [ -n "${CI_PIPELINE_FILES:-}" ] && ! printf '%s' "$CI_PIPELINE_FILES" | grep -qF "\"$file\""; then
+          echo "Leaving $w ($app): $file didn't change"
+          continue
+        fi ;;
+    esac
     echo "Restarting $w ($app, namespace $space)"
     kubectl rollout restart -n "$space" "$w" || echo "  ! $w not restarted (not deployed yet?)"
   done
